@@ -28,8 +28,14 @@ app.get('/api/doctors', (req, res) => {
 
 app.post('/api/appointments', async (req, res) => {
   try {
+    const selectedDoctor = demoDoctors.find(
+      (doctor) => String(doctor._id) === String(req.body.doctorId)
+    );
+
     const payload = {
       ...req.body,
+      doctorId: req.body.doctorId || (selectedDoctor ? selectedDoctor._id : ''),
+      doctorName: req.body.doctorName || (selectedDoctor ? selectedDoctor.name : 'Unknown Doctor'),
       status: req.body.status || 'Pending',
       createdAt: new Date()
     };

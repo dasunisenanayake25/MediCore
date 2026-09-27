@@ -6,7 +6,7 @@
 
 body {
   font-family: Arial, Helvetica, sans-serif;
-  background: #f4f7fb;
+  background: linear-gradient(180deg, #edf9f8 0%, #f6f8fb 100%);
   color: #1f2937;
 }
 
@@ -25,17 +25,19 @@ button {
 }
 
 .header {
-  background: #0f766e;
+  background: linear-gradient(135deg, #0f766e 0%, #0b5f72 100%);
   color: white;
-  padding: 20px 8%;
+  padding: 22px 8%;
   display: flex;
   justify-content: space-between;
   align-items: center;
+  box-shadow: 0 10px 25px rgba(15, 118, 110, 0.18);
 }
 
 .logo {
-  font-size: 28px;
-  font-weight: bold;
+  font-size: 30px;
+  font-weight: 800;
+  letter-spacing: 0.03em;
 }
 
 .nav {
@@ -50,9 +52,10 @@ button {
 .book-button,
 .cancel-button {
   border: none;
-  border-radius: 8px;
-  font-weight: bold;
+  border-radius: 10px;
+  font-weight: 700;
   transition: all 0.2s ease;
+  box-shadow: 0 8px 20px rgba(15, 118, 110, 0.12);
 }
 
 .nav-button {
@@ -70,22 +73,24 @@ button {
 
 .primary-button,
 .book-button {
-  background: #0f766e;
+  background: linear-gradient(135deg, #0f766e 0%, #0b8f83 100%);
   color: white;
 }
 
 .primary-button:hover,
 .book-button:hover {
-  background: #115e59;
+  background: linear-gradient(135deg, #0d6965 0%, #0a7a71 100%);
+  transform: translateY(-1px);
 }
 
 .secondary-button {
-  background: #e2e8f0;
+  background: linear-gradient(135deg, #edf6f5 0%, #e2f1f0 100%);
   color: #0f172a;
 }
 
 .secondary-button:hover {
-  background: #cbd5e1;
+  background: linear-gradient(135deg, #dfeef0 0%, #d5e9e6 100%);
+  transform: translateY(-1px);
 }
 
 .container {
@@ -100,11 +105,12 @@ button {
 }
 
 .hero-card {
-  background: white;
-  border-radius: 18px;
-  padding: 50px 30px;
+  background: linear-gradient(135deg, rgba(255,255,255,0.96), rgba(234,246,244,0.96));
+  border-radius: 24px;
+  padding: 58px 32px;
   text-align: center;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+  box-shadow: 0 16px 40px rgba(15, 118, 110, 0.12);
+  border: 1px solid rgba(15, 118, 110, 0.08);
 }
 
 .hero-card h1 {
@@ -149,12 +155,13 @@ button {
 .booking-card,
 .appointments-card {
   background: white;
-  border-radius: 14px;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+  border-radius: 18px;
+  box-shadow: 0 12px 30px rgba(15, 23, 42, 0.06);
+  border: 1px solid rgba(148, 163, 184, 0.14);
 }
 
 .feature-card {
-  padding: 24px;
+  padding: 28px 24px;
 }
 
 .feature-card h3 {
@@ -187,7 +194,7 @@ button {
 }
 
 .doctor-card {
-  padding: 25px;
+  padding: 28px 24px;
 }
 
 .doctor-card h3 {
@@ -206,7 +213,7 @@ button {
 }
 
 .booking-card {
-  padding: 30px;
+  padding: 32px;
 }
 
 .form-grid {
@@ -227,10 +234,11 @@ button {
 
 .form-group input,
 .form-group select {
-  padding: 12px;
+  padding: 13px 14px;
   border: 1px solid #cbd5e1;
-  border-radius: 8px;
+  border-radius: 10px;
   font-size: 15px;
+  background: #f8fbfc;
 }
 
 .form-actions {
@@ -240,6 +248,12 @@ button {
 .appointments-card {
   padding: 25px;
   overflow-x: auto;
+}
+
+.appointments-table thead th {
+  color: #134e4a;
+  font-size: 14px;
+  letter-spacing: 0.02em;
 }
 
 .appointments-table {
@@ -259,13 +273,14 @@ button {
 }
 
 .cancel-button {
-  background: #dc2626;
+  background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
   color: white;
-  padding: 7px 12px;
+  padding: 8px 12px;
 }
 
 .cancel-button:hover {
-  background: #b91c1c;
+  background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
+  transform: translateY(-1px);
 }
 
 .success-message,

@@ -65,7 +65,14 @@ function AppRoutes() {
     setError("");
 
     try {
-      await createAppointment(form);
+      const selectedDoctor = doctors.find((doctor) => doctor._id === form.doctorId);
+      const appointmentData = {
+        ...form,
+        doctorId: form.doctorId,
+        doctorName: selectedDoctor ? selectedDoctor.name : "Unknown Doctor",
+      };
+
+      await createAppointment(appointmentData);
       setMessage("Appointment booked successfully!");
       setForm(initialForm);
       await loadData();
@@ -110,6 +117,7 @@ function AppRoutes() {
         element={
           <AppointmentsPage
             appointments={appointments}
+            doctors={doctors}
             message={message}
             error={error}
             handleCancel={handleCancel}
@@ -131,55 +139,49 @@ function LandingPage({ navigate }) {
           <button type="button" className="nav-button" onClick={() => navigate("/")}>
             Home
           </button>
+          <button type="button" className="nav-button" onClick={() => navigate("/doctors")}>
+            Doctors
+          </button>
+          <button type="button" className="nav-button" onClick={() => navigate("/appointments")}>
+            Appointments
+          </button>
         </nav>
       </header>
 
       <main className="container landing-page">
         <section className="hero-card">
-          <p className="eyebrow">Healthcare made simple</p>
-          <h1>Book medical appointments with confidence.</h1>
+          <p className="eyebrow">Your health, our focus</p>
+          <h1>Healthcare that feels personal</h1>
           <p className="intro-text">
-            MediCore helps patients quickly schedule visits with trusted doctors,
-            explore available specialists, and manage appointments in one place.
+            Schedule consultations, discover trusted specialists, and manage your care in one
+            simple place.
           </p>
 
           <div className="action-row">
             <button type="button" className="primary-button" onClick={() => navigate("/booking")}>
-              Book an Appointment
+              Book Appointment
             </button>
             <button type="button" className="secondary-button" onClick={() => navigate("/doctors")}>
               View Doctors
-            </button>
-            <button type="button" className="secondary-button" onClick={() => navigate("/appointments")}>
-              View Appointments
             </button>
           </div>
         </section>
 
         <section className="feature-grid">
-          <div className="feature-card">
-            <h3>What this app does</h3>
-            <p>
-              Patients can browse doctor profiles, choose a preferred date and time,
-              and reserve a medical appointment in seconds.
-            </p>
-          </div>
+          <article className="feature-card">
+            <h3>Trusted Doctors</h3>
+            <p>Meet skilled specialists for every stage of your care journey.</p>
+          </article>
 
-          <div className="feature-card">
-            <h3>Why it matters</h3>
-            <p>
-              It reduces waiting, makes scheduling easier, and keeps appointment
-              information organized for both patients and healthcare staff.
-            </p>
-          </div>
+          <article className="feature-card">
+            <h3>Easy Booking</h3>
+            <p>Reserve your appointment in a few quick steps with a smooth experience.</p>
+          </article>
 
-          <div className="feature-card">
-            <h3>Who it is for</h3>
-            <p>
-              Ideal for clinics, hospitals, and patients who want a smooth digital
-              appointment booking experience without confusion.
-            </p>
-          </div>
+          <article className="feature-card">
+            <h3>Care Dashboard</h3>
+            <p>Track bookings and stay organized with a clear appointment overview.</p>
+          </article>
         </section>
       </main>
     </div>
@@ -232,7 +234,31 @@ function DoctorsPage({ doctors, navigate }) {
   );
 }
 
-function AppointmentsPage({ appointments, message, error, handleCancel, setError, navigate }) {
+function AppointmentsPage({ appointments, doctors, message, error, handleCancel, setError, navigate }) {
+  const getDoctorName = (appointment) => {
+    if (appointment?.doctorName && appointment.doctorName !== "Unknown" && appointment.doctorName !== "Unknown Doctor") {
+      return appointment.doctorName;
+    }
+
+    if (appointment?.doctorId && typeof appointment.doctorId === "object") {
+      return appointment.doctorId.name || "Unknown";
+    }
+
+    const doctorIdValue =
+      typeof appointment?.doctorId === "string"
+        ? appointment.doctorId
+        : appointment?.doctorId?._id || appointment?.doctorId?.id;
+
+    if (doctorIdValue) {
+      const doctor = doctors.find((item) => String(item._id) === String(doctorIdValue));
+      if (doctor?.name) {
+        return doctor.name;
+      }
+    }
+
+    return "Unknown";
+  };
+
   return (
     <div className="app">
       <header className="header">
@@ -277,7 +303,7 @@ function AppointmentsPage({ appointments, message, error, handleCancel, setError
                 {appointments.map((appointment) => (
                   <tr key={appointment._id}>
                     <td>{appointment.patientName}</td>
-                    <td>{appointment.doctorId?.name || "Unknown"}</td>
+                    <td>{getDoctorName(appointment)}</td>
                     <td>{appointment.date}</td>
                     <td>{appointment.time}</td>
                     <td>{appointment.status}</td>
