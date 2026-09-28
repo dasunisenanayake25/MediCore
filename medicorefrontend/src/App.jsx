@@ -150,8 +150,8 @@ function LandingPage({ navigate }) {
           <a href="#">Pages</a>
           <a href="#">Departments</a>
         </nav>
-        <button className="landing-book-btn" onClick={() => navigate("/booking")}>
-          Book an Appointment
+        <button className="landing-book-btn" onClick={() => navigate("/login")}>
+          Login
         </button>
       </header>
 
@@ -226,7 +226,7 @@ function LandingPage({ navigate }) {
 
           <div className="footer-contact">
             <h4>Contact Us</h4>
-            <p><FaPhoneAlt /> +9491 567 8900</p>
+            <p><FaPhoneAlt /> +1 234 567 8900</p>
             <p><FaEnvelope /> info@medicore.com</p>
           </div>
         </div>
