@@ -12,6 +12,7 @@ import {
 import heroBannerImg from "./assets/hero-banner.jpg";
 import journeyDoctorImg from "./assets/journey-doctor.jpg";
 import registerBgImg from "./assets/register-bg.jpg";
+import loginBgImg from "./assets/login-bg.jpg";
 
 const initialForm = {
   patientName: "",
@@ -103,6 +104,7 @@ function AppRoutes() {
     <Routes>
       <Route path="/" element={<LandingPage navigate={navigate} />} />
       <Route path="/register" element={<RegisterPage navigate={navigate} />} />
+      <Route path="/login" element={<LoginPage navigate={navigate} />} />
       <Route
         path="/booking"
         element={
@@ -489,7 +491,7 @@ function RegisterPage({ navigate }) {
     <div className="auth-page">
       <div className="auth-left" style={{ backgroundImage: `url(${registerBgImg})` }}>
         <div className="auth-overlay">
-          <div className="auth-brand">
+          <div className="auth-brand" onClick={() => navigate("/")} style={{cursor: "pointer"}}>
             <FaStethoscope className="auth-brand-icon" />
             <div className="auth-brand-text">
               <h2>MediCore</h2>
@@ -550,4 +552,69 @@ function RegisterPage({ navigate }) {
     </div>
   );
 }
+
+
+
+
+
+function LoginPage({ navigate }) {
+  return (
+    <div className="auth-page">
+      <div className="auth-left" style={{ backgroundImage: `url(${loginBgImg})` }}>
+        <div className="auth-overlay">
+          <div className="auth-brand" onClick={() => navigate("/")} style={{cursor: "pointer"}}>
+            <FaStethoscope className="auth-brand-icon" />
+            <div className="auth-brand-text">
+              <h2>MediCore</h2>
+              <p style={{fontSize: "12px", opacity: 0.8, margin: 0, textTransform: "uppercase", letterSpacing: "0.05em"}}>Care Beyond Measure</p>
+            </div>
+          </div>
+          <div className="auth-footer">
+            <p>All Right Reserved, 2026</p>
+          </div>
+        </div>
+      </div>
+
+      <div className="auth-right">
+        <div className="auth-form-container">
+          <div className="auth-form-header">
+            <div className="auth-logo-circle">
+              <FaStethoscope />
+            </div>
+            <h2>Log In</h2>
+            <p>Access your account</p>
+          </div>
+
+          <form className="auth-form" onSubmit={(e) => { e.preventDefault(); navigate("/"); }}>
+            <div className="input-wrapper">
+              <label>Email</label>
+              <div className="input-group">
+                <FaEnvelope className="input-icon" />
+                <input type="email" placeholder="Enter Email" required />
+              </div>
+            </div>
+            <div className="input-wrapper">
+              <label>Password</label>
+              <div className="input-group">
+                <FaLock className="input-icon" />
+                <input type="password" placeholder="Password" required />
+              </div>
+            </div>
+
+            <button type="submit" className="submit-btn" style={{marginTop: "10px"}}>Log In</button>
+          </form>
+
+          <p className="auth-switch">
+            Don't have an account? <span onClick={() => navigate("/register")}>Sign up</span>
+          </p>
+        </div>
+
+        <div className="auth-bottom-links">
+          <a href="#">Contact Us</a> | <a href="#">About Us</a> | <a href="#">FAQ</a>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 
