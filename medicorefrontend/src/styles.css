@@ -358,13 +358,39 @@ button {
   color: #1d4ed8;
 }
 
-.landing-book-btn {
+.auth-buttons {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+
+.landing-login-btn {
+  background-color: transparent;
+  color: #1e40af;
+  padding: 10px 20px;
+  border-radius: 6px;
+  border: 2px solid #1e40af;
+  font-weight: bold;
+  transition: all 0.2s;
+}
+
+.landing-login-btn:hover {
+  background-color: #f8faff;
+  color: #1e3a8a;
+}
+
+.landing-reg-btn {
   background-color: #1e40af;
   color: white;
   padding: 12px 24px;
   border-radius: 6px;
   border: none;
   font-weight: bold;
+  transition: all 0.2s;
+}
+
+.landing-reg-btn:hover {
+  background-color: #1e3a8a;
 }
 
 .landing-hero {

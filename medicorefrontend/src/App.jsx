@@ -150,9 +150,14 @@ function LandingPage({ navigate }) {
           <a href="#">Pages</a>
           <a href="#">Departments</a>
         </nav>
-        <button className="landing-book-btn" onClick={() => navigate("/login")}>
-          Login
-        </button>
+        <div className="auth-buttons">
+          <button className="landing-login-btn" onClick={() => navigate("/login")}>
+            Login
+          </button>
+          <button className="landing-reg-btn" onClick={() => navigate("/register")}>
+            Register
+          </button>
+        </div>
       </header>
 
       <section className="landing-hero">
