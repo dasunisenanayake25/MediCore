@@ -875,3 +875,232 @@ button {
   color: #64748b;
 }
 
+
+/* DOCTORS PAGE STYLES */
+.doc-page-wrapper {
+  background-color: #f8fafc;
+  min-height: 100vh;
+  padding-bottom: 40px;
+}
+
+.doc-top-nav {
+  padding: 20px 40px;
+  background: white;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.back-home {
+  color: #64748b;
+  cursor: pointer;
+  font-weight: 500;
+  transition: color 0.2s;
+}
+
+.back-home:hover {
+  color: #1e3a8a;
+}
+
+.doc-page-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 40px 20px;
+}
+
+.doc-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 30px;
+}
+
+.doc-title {
+  color: #1e293b;
+  font-size: 28px;
+}
+
+.doc-search {
+  position: relative;
+  width: 300px;
+}
+
+.doc-search input {
+  width: 100%;
+  padding: 12px 20px 12px 40px;
+  border: 1px solid #e2e8f0;
+  border-radius: 30px;
+  outline: none;
+  font-size: 14px;
+  background: white;
+}
+
+.doc-search .search-icon {
+  position: absolute;
+  left: 15px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #94a3b8;
+}
+
+.doc-filters-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 40px;
+  border-bottom: 1px solid #e2e8f0;
+  padding-bottom: 15px;
+}
+
+.doc-tabs {
+  display: flex;
+  gap: 30px;
+  overflow-x: auto;
+}
+
+.doc-tab {
+  color: #94a3b8;
+  font-size: 11px;
+  font-weight: bold;
+  letter-spacing: 0.05em;
+  padding: 8px 16px;
+  border-radius: 20px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.doc-tab.active {
+  background-color: #0ea5e9;
+  color: white;
+}
+
+.doc-view-icons {
+  display: flex;
+  gap: 15px;
+  color: #cbd5e1;
+  font-size: 18px;
+}
+
+.doc-view-icons .active-view {
+  color: #0ea5e9;
+}
+
+.doc-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 24px;
+}
+
+.doc-card {
+  background: white;
+  border-radius: 16px;
+  padding: 24px 20px;
+  text-align: center;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.03);
+  position: relative;
+  transition: transform 0.2s;
+}
+
+.doc-card:hover {
+  transform: translateY(-5px);
+}
+
+.doc-rating {
+  position: absolute;
+  top: 20px;
+  left: -5px;
+  background: #fff7ed;
+  color: #f97316;
+  padding: 4px 8px;
+  font-size: 12px;
+  font-weight: bold;
+  border-radius: 0 4px 4px 0;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  box-shadow: 2px 2px 5px rgba(0,0,0,0.05);
+}
+
+.doc-avatar {
+  width: 90px;
+  height: 90px;
+  margin: 10px auto 20px;
+  border-radius: 50%;
+  overflow: hidden;
+  border: 3px solid #f8fafc;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+}
+
+.doc-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.doc-name {
+  color: #1e293b;
+  font-size: 16px;
+  margin-bottom: 5px;
+}
+
+.doc-address {
+  color: #94a3b8;
+  font-size: 11px;
+  margin-bottom: 15px;
+}
+
+.doc-specialty-badge {
+  display: inline-block;
+  background: #eff6ff;
+  color: #3b82f6;
+  font-size: 10px;
+  font-weight: bold;
+  padding: 6px 12px;
+  border-radius: 15px;
+  margin-bottom: 25px;
+}
+
+.doc-card-actions {
+  display: flex;
+  border-top: 1px solid #f1f5f9;
+  padding-top: 15px;
+}
+
+.doc-action-btn {
+  flex: 1;
+  background: transparent;
+  border: none;
+  color: #64748b;
+  font-size: 12px;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  cursor: pointer;
+}
+
+.doc-action-btn:hover {
+  color: #1e3a8a;
+}
+
+.doc-divider {
+  width: 1px;
+  background: #e2e8f0;
+  margin: 0 10px;
+}
+
+@media (max-width: 1024px) {
+  .doc-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+@media (max-width: 600px) {
+  .doc-grid {
+    grid-template-columns: 1fr;
+  }
+  .doc-filters-row {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 15px;
+  }
+}
+

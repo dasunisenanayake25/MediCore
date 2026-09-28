@@ -1,4 +1,4 @@
-import { FaTooth, FaBrain, FaHeartbeat, FaStethoscope, FaBone, FaLungs, FaPhoneAlt, FaEnvelope, FaUser, FaLock } from "react-icons/fa";
+import { FaTooth, FaBrain, FaHeartbeat, FaStethoscope, FaBone, FaLungs, FaPhoneAlt, FaEnvelope, FaUser, FaLock, FaSearch, FaThLarge, FaList, FaStar, FaCalendarAlt } from "react-icons/fa";
 import { useEffect, useState } from "react";
 import { BrowserRouter, Route, Routes, useNavigate, Link } from "react-router-dom";
 
@@ -616,5 +616,6 @@ function LoginPage({ navigate }) {
     </div>
   );
 }
+
 
 
