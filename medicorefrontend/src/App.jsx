@@ -1,3 +1,4 @@
+import { FaTooth, FaBrain, FaHeartbeat, FaStethoscope, FaBone, FaLungs, FaPhoneAlt, FaEnvelope } from "react-icons/fa";
 import { useEffect, useState } from "react";
 import { BrowserRouter, Route, Routes, useNavigate } from "react-router-dom";
 
@@ -7,6 +8,9 @@ import {
   createAppointment,
   cancelAppointment,
 } from "./api";
+
+import heroBannerImg from "./assets/hero-banner.jpg";
+import journeyDoctorImg from "./assets/journey-doctor.jpg";
 
 const initialForm = {
   patientName: "",
@@ -132,58 +136,104 @@ function AppRoutes() {
 
 function LandingPage({ navigate }) {
   return (
-    <div className="app">
-      <header className="header">
-        <div className="logo">MediCore</div>
-        <nav className="nav">
-          <button type="button" className="nav-button" onClick={() => navigate("/")}>
-            Home
-          </button>
-          <button type="button" className="nav-button" onClick={() => navigate("/doctors")}>
-            Doctors
-          </button>
-          <button type="button" className="nav-button" onClick={() => navigate("/appointments")}>
-            Appointments
-          </button>
+    <div className="landing-layout">
+      <header className="landing-header">
+        <div className="landing-logo-container">
+          <div className="landing-logo">
+            <FaStethoscope className="logo-icon" style={{marginRight: "8px", color: "#1d4ed8"}} /> MediCore
+          </div>
+          <div className="logo-tagline">Care Beyond Measure</div>
+        </div>
+        <nav className="landing-nav">
+          <a href="#" onClick={(e) => { e.preventDefault(); navigate("/"); }}>Home</a>
+          <a href="#">About</a>
+          <a href="#">Pages</a>
+          <a href="#">Departments</a>
         </nav>
+        <button className="landing-book-btn" onClick={() => navigate("/login")}>
+          Login
+        </button>
       </header>
 
-      <main className="container landing-page">
-        <section className="hero-card">
-          <p className="eyebrow">Your health, our focus</p>
-          <h1>Healthcare that feels personal</h1>
-          <p className="intro-text">
-            Schedule consultations, discover trusted specialists, and manage your care in one
-            simple place.
+      <section className="landing-hero">
+        <div className="hero-content">
+          <h1>Your health,<br/>Our priority</h1>
+          <p className="hero-desc">
+            Our dedicated team is committed to providing comprehensive and compassionate care, tailored to your unique needs and preferences.
           </p>
+          <button className="hero-btn" onClick={() => navigate("/doctors")}>
+            Find a doctor
+          </button>
+        </div>
+        <div className="hero-image-wrapper">
+          <img src={heroBannerImg} alt="Doctors team" className="hero-img" />
+        </div>
+      </section>
 
-          <div className="action-row">
-            <button type="button" className="primary-button" onClick={() => navigate("/booking")}>
-              Book Appointment
-            </button>
-            <button type="button" className="secondary-button" onClick={() => navigate("/doctors")}>
-              View Doctors
-            </button>
+      <section className="landing-expertise">
+        <h2>Expertise & specializations</h2>
+        <div className="expertise-grid">
+          {[
+            { title: "Dental Care", icon: <FaTooth /> },
+            { title: "Neurology", icon: <FaBrain /> },
+            { title: "Cardiology", icon: <FaHeartbeat /> },
+            { title: "Gastroenterology", icon: <FaStethoscope /> },
+            { title: "Orthopaedics", icon: <FaBone /> },
+            { title: "Pulmonology", icon: <FaLungs /> }
+          ].map((item, index) => (
+            <div className="expertise-card" key={index}>
+              <div className="card-icon" style={{color: "#3b82f6"}}>{item.icon}</div>
+              <h3>{item.title}</h3>
+              <p>Lorem ipsum dolor sit amet, consect adip elit, sed do eiusmod tempor.</p>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      <section className="landing-journey">
+        <div className="journey-content">
+          <h2>Start Your<br/>Wellness Journey<br/>Now</h2>
+          <p>
+            Lorem ipsum dolor sit amet, consectetur adipiscing elit, standard dummy text ever since the 1500s, when an unknown to the scrambled it to make a type specimen book.
+          </p>
+          <button className="contact-btn">Contact us <FaPhoneAlt style={{marginLeft: "8px"}}/></button>
+        </div>
+        <div className="journey-image-wrapper">
+          <img src={journeyDoctorImg} alt="Doctor" className="journey-img" />
+        </div>
+      </section>
+
+      <section className="landing-lab">
+        <h2>We Have Lab Test Facilities,<br/>So Book Yours Todays!</h2>
+      </section>
+
+      <footer className="landing-footer">
+        <div className="footer-content">
+          <div className="footer-brand">
+            <div className="footer-logo">
+              <FaStethoscope style={{marginRight: "8px"}} /> MediCore
+            </div>
+            <p className="footer-tagline">Care Beyond Measure</p>
           </div>
-        </section>
+          
+          <div className="footer-links">
+            <h4>Quick Links</h4>
+            <a href="#">Home</a>
+            <a href="#">About Us</a>
+            <a href="#">Departments</a>
+            <a href="#">Contact</a>
+          </div>
 
-        <section className="feature-grid">
-          <article className="feature-card">
-            <h3>Trusted Doctors</h3>
-            <p>Meet skilled specialists for every stage of your care journey.</p>
-          </article>
-
-          <article className="feature-card">
-            <h3>Easy Booking</h3>
-            <p>Reserve your appointment in a few quick steps with a smooth experience.</p>
-          </article>
-
-          <article className="feature-card">
-            <h3>Care Dashboard</h3>
-            <p>Track bookings and stay organized with a clear appointment overview.</p>
-          </article>
-        </section>
-      </main>
+          <div className="footer-contact">
+            <h4>Contact Us</h4>
+            <p><FaPhoneAlt /> +1 234 567 8900</p>
+            <p><FaEnvelope /> info@medicore.com</p>
+          </div>
+        </div>
+        <div className="footer-bottom">
+          <p>&copy; {new Date().getFullYear()} MediCore. All rights reserved.</p>
+        </div>
+      </footer>
     </div>
   );
 }
