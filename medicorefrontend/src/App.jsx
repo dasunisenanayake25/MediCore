@@ -1,4 +1,4 @@
-import { FaTooth, FaBrain, FaHeartbeat, FaStethoscope, FaBone, FaLungs, FaPhoneAlt, FaEnvelope, FaUser, FaLock, FaSearch, FaThLarge, FaList, FaStar, FaCalendarAlt } from "react-icons/fa";
+import { FaTooth, FaBrain, FaHeartbeat, FaStethoscope, FaBone, FaLungs, FaPhoneAlt, FaEnvelope, FaUser, FaLock, FaSearch, FaStar, FaCalendarAlt, FaTh, FaList } from "react-icons/fa";
 import { useEffect, useState } from "react";
 import { BrowserRouter, Route, Routes, useNavigate, Link } from "react-router-dom";
 
@@ -248,47 +248,80 @@ function LandingPage({ navigate }) {
 }
 
 function DoctorsPage({ doctors, navigate }) {
+  const enrichedDoctors = doctors.map((doc, idx) => ({
+    ...doc,
+    rating: doc.rating || (4.5 + (idx % 5) * 0.1).toFixed(1),
+    address: doc.address || "1200 Natalie Brook Apt. 966",
+    image: doc.image || `https://i.pravatar.cc/150?img=${idx + 11}`
+  }));
+
+  const displayDoctors = enrichedDoctors.length > 0 ? enrichedDoctors : [
+    { _id: "d1", name: "Dr. Topon Kumar", specialization: "NEUROLOGIST", rating: "4.5", address: "1200 Natalie Brook Apt. 966", image: "https://i.pravatar.cc/150?img=11" },
+    { _id: "d2", name: "Dr. Albert Miles", specialization: "CARDIOLOGIST", rating: "5.0", address: "1200 Natalie Brook Apt. 966", image: "https://i.pravatar.cc/150?img=12" },
+    { _id: "d3", name: "Gabriel Holt", specialization: "NEUROLOGIST", rating: "4.8", address: "1200 Natalie Brook Apt. 966", image: "https://i.pravatar.cc/150?img=5" },
+    { _id: "d4", name: "Lois Saunders", specialization: "ONCOLOGY", rating: "4.3", address: "1200 Natalie Brook Apt. 966", image: "https://i.pravatar.cc/150?img=14" }
+  ];
+
   return (
-    <div className="app">
-      <header className="header">
-        <div className="logo">MediCore</div>
-        <nav className="nav">
-          <button type="button" className="nav-button" onClick={() => navigate("/")}>
-            Home
-          </button>
-        </nav>
-      </header>
-
-      <main className="container page-content">
-        <div className="page-header-row">
+    <div className="doctors-layout">
+      <div className="doc-topbar">
+        <div onClick={() => navigate("/")} style={{cursor: "pointer", display: "flex", alignItems: "center", gap: "12px"}}>
+          <FaStethoscope style={{fontSize: "32px", color: "#1d4ed8"}} />
           <div>
-            <p className="eyebrow">Our specialists</p>
-            <h2 className="section-title">Doctors</h2>
+            <h2 style={{margin: 0, fontSize: "24px", color: "#1e293b", fontWeight: "bold"}}>MediCore</h2>
+            <p style={{fontSize: "12px", margin: 0, textTransform: "uppercase", letterSpacing: "0.05em", color: "#64748b"}}>Care Beyond Measure</p>
           </div>
-          <button type="button" className="secondary-button" onClick={() => navigate("/booking")}>
-            Book Appointment
-          </button>
         </div>
+        <div className="doc-search">
+          <input type="text" placeholder="Search Doctor" />
+          <FaSearch className="search-icon" />
+        </div>
+      </div>
 
-        <div className="doctors-grid">
-          {doctors.length === 0 ? (
-            <p>No doctors available.</p>
-          ) : (
-            doctors.map((doctor) => (
-              <div className="doctor-card" key={doctor._id}>
-                <h3>{doctor.name}</h3>
-                <p>
-                  <strong>Specialization:</strong> {doctor.specialization}
-                </p>
-                <p>
-                  <strong>Email:</strong> {doctor.email}
-                </p>
-                <p className="available">Available</p>
-              </div>
-            ))
-          )}
+      <div className="doc-filter-bar">
+        <div className="doc-tabs">
+          <span className="doc-tab active">ALL</span>
+          <span className="doc-tab">DENTAL CARE</span>
+          <span className="doc-tab">NEUROLOGY</span>
+          <span className="doc-tab">CARDIOLOGY</span>
+          <span className="doc-tab">GASTROENTEROLOGY</span>
+          <span className="doc-tab">ORTHOPAEDICS</span>
+          <span className="doc-tab">PULMONOLOGY</span>
         </div>
-      </main>
+        <div className="doc-view-toggles">
+          <FaTh className="view-icon active" />
+          <FaList className="view-icon" />
+        </div>
+      </div>
+
+      <div className="doc-grid">
+        {displayDoctors.map((doc) => (
+          <div className="doc-card" key={doc._id}>
+            <div className="doc-card-top">
+              <div className="doc-rating">
+                <FaStar style={{color: "#f59e0b", marginRight: "4px"}} /> {doc.rating}
+              </div>
+            </div>
+            
+            <div className="doc-avatar">
+              <img src={doc.image} alt={doc.name} />
+            </div>
+            
+            <h3 className="doc-name">{doc.name}</h3>
+            <p className="doc-address">{doc.address}</p>
+            
+            <div className="doc-spec-pill">
+              {doc.specialization.toUpperCase()}
+            </div>
+            
+            <div className="doc-actions">
+              <button className="doc-action-btn">
+                <FaCalendarAlt className="action-ic" /> Availability
+              </button>
+            </div>
+          </div>
+        ))}
+      </div>
     </div>
   );
 }
@@ -616,6 +649,7 @@ function LoginPage({ navigate }) {
     </div>
   );
 }
+
 
 
 
