@@ -31,7 +31,7 @@ app.post('/api/auth/register', async (req, res) => {
       return res.status(201).json({ _id: user._id, username: user.username, email: user.email });
     } else {
       if (demoUsers.find(u => u.email === email)) return res.status(400).json({ message: 'User already exists' });
-      const user = { _id: \user-\+\Date.now(), username, email, password };
+      const user = { _id: "user-" + Date.now(), username, email, password };
       demoUsers.push(user);
       return res.status(201).json({ _id: user._id, username: user.username, email: user.email });
     }
