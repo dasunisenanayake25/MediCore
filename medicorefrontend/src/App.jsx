@@ -288,21 +288,11 @@ function DoctorsPage({ doctors, navigate }) {
           <span className="doc-tab">ORTHOPAEDICS</span>
           <span className="doc-tab">PULMONOLOGY</span>
         </div>
-        <div className="doc-view-toggles">
-          <FaTh className="view-icon active" />
-          <FaList className="view-icon" />
-        </div>
       </div>
 
       <div className="doc-grid">
         {displayDoctors.map((doc) => (
           <div className="doc-card" key={doc._id}>
-            <div className="doc-card-top">
-              <div className="doc-rating">
-                <FaStar style={{color: "#f59e0b", marginRight: "4px"}} /> {doc.rating}
-              </div>
-            </div>
-            
             <div className="doc-avatar">
               <img src={doc.image} alt={doc.name} />
             </div>

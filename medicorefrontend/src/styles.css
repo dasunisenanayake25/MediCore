@@ -968,7 +968,7 @@ button {
 }
 
 .doc-tab.active {
-  background-color: #0ea5e9;
+  background-color: #1e40af;
   color: white;
 }
 
@@ -1172,7 +1172,7 @@ button {
 }
 
 .doc-tab.active {
-  background: #007bff;
+  background: #1e40af;
   color: white;
 }
 
@@ -1291,4 +1291,5 @@ button {
 .action-ic {
   font-size: 14px;
 }
+
 
