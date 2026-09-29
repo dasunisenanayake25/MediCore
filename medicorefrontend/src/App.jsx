@@ -155,8 +155,8 @@ function LandingPage({ navigate, user, setUser }) {
         <nav className="landing-nav">
           <a href="#" onClick={(e) => { e.preventDefault(); navigate("/"); }}>Home</a>
           <a href="#">About</a>
-          <a href="#">Pages</a>
           <a href="#">Departments</a>
+          <a href="#">Contact Us</a>
         </nav>
         <div className="auth-buttons">
           {user ? (
