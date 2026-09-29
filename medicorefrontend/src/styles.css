@@ -25,13 +25,13 @@ button {
 }
 
 .header {
-  background: linear-gradient(135deg, #0f766e 0%, #0b5f72 100%);
+  background: #1e40af;
   color: white;
   padding: 22px 8%;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  box-shadow: 0 10px 25px rgba(15, 118, 110, 0.18);
+  box-shadow: 0 10px 25px rgba(30, 64, 175, 0.18);
 }
 
 .logo {
@@ -55,7 +55,7 @@ button {
   border-radius: 10px;
   font-weight: 700;
   transition: all 0.2s ease;
-  box-shadow: 0 8px 20px rgba(15, 118, 110, 0.12);
+  box-shadow: 0 8px 20px rgba(30, 64, 175, 0.12);
 }
 
 .nav-button {
@@ -73,23 +73,23 @@ button {
 
 .primary-button,
 .book-button {
-  background: linear-gradient(135deg, #0f766e 0%, #0b8f83 100%);
+  background: #1e40af;
   color: white;
 }
 
 .primary-button:hover,
 .book-button:hover {
-  background: linear-gradient(135deg, #0d6965 0%, #0a7a71 100%);
+  background: #1e3a8a;
   transform: translateY(-1px);
 }
 
 .secondary-button {
-  background: linear-gradient(135deg, #edf6f5 0%, #e2f1f0 100%);
-  color: #0f172a;
+  background: #e2e8f0;
+  color: #334155;
 }
 
 .secondary-button:hover {
-  background: linear-gradient(135deg, #dfeef0 0%, #d5e9e6 100%);
+  background: #cbd5e1;
   transform: translateY(-1px);
 }
 
@@ -109,7 +109,7 @@ button {
   border-radius: 24px;
   padding: 58px 32px;
   text-align: center;
-  box-shadow: 0 16px 40px rgba(15, 118, 110, 0.12);
+  box-shadow: 0 16px 40px rgba(30, 64, 175, 0.12);
   border: 1px solid rgba(15, 118, 110, 0.08);
 }
 
@@ -1292,4 +1292,69 @@ button {
   font-size: 14px;
 }
 
+
+
+
+/* DASHBOARD STYLES */
+.dash-hero-card {
+  background: white;
+  border-radius: 12px;
+  padding: 60px 40px;
+  text-align: center;
+  box-shadow: 0 4px 6px rgba(0,0,0,0.02);
+  margin-bottom: 24px;
+}
+
+.dash-eyebrow {
+  color: #64748b;
+  font-size: 12px;
+  font-weight: bold;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  margin-bottom: 16px;
+}
+
+.dash-hero-card h1 {
+  color: #1e3a8a;
+  font-size: 36px;
+  margin-bottom: 20px;
+}
+
+.dash-subtitle {
+  color: #475569;
+  max-width: 600px;
+  margin: 0 auto 30px;
+  line-height: 1.6;
+}
+
+.dash-actions {
+  display: flex;
+  justify-content: center;
+  gap: 16px;
+}
+
+.dash-info-cards {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+}
+
+.dash-info-card {
+  background: white;
+  padding: 30px;
+  border-radius: 12px;
+  box-shadow: 0 4px 6px rgba(0,0,0,0.02);
+}
+
+.dash-info-card h3 {
+  color: #1e3a8a;
+  font-size: 18px;
+  margin-bottom: 12px;
+}
+
+.dash-info-card p {
+  color: #64748b;
+  font-size: 14px;
+  line-height: 1.6;
+}
 

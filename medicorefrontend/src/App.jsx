@@ -7,6 +7,8 @@ import {
   getAppointments,
   createAppointment,
   cancelAppointment,
+  registerUser,
+  loginUser,
 } from "./api";
 
 import heroBannerImg from "./assets/hero-banner.jpg";
@@ -33,6 +35,7 @@ function App() {
 
 function AppRoutes() {
   const navigate = useNavigate();
+  const [user, setUser] = useState(() => JSON.parse(localStorage.getItem('user')) || null);
   const [doctors, setDoctors] = useState([]);
   const [appointments, setAppointments] = useState([]);
   const [form, setForm] = useState(initialForm);
@@ -102,9 +105,10 @@ function AppRoutes() {
 
   return (
     <Routes>
-      <Route path="/" element={<LandingPage navigate={navigate} />} />
-      <Route path="/register" element={<RegisterPage navigate={navigate} />} />
-      <Route path="/login" element={<LoginPage navigate={navigate} />} />
+      <Route path="/" element={<LandingPage navigate={navigate} user={user} setUser={setUser} />} />
+      <Route path="/register" element={<RegisterPage navigate={navigate} setUser={setUser} />} />
+      <Route path="/dashboard" element={<DashboardPage navigate={navigate} user={user} setUser={setUser} />} />
+      <Route path="/login" element={<LoginPage navigate={navigate} setUser={setUser} />} />
       <Route
         path="/booking"
         element={
@@ -138,7 +142,7 @@ function AppRoutes() {
   );
 }
 
-function LandingPage({ navigate }) {
+function LandingPage({ navigate, user, setUser }) {
   return (
     <div className="landing-layout">
       <header className="landing-header">
@@ -155,12 +159,17 @@ function LandingPage({ navigate }) {
           <a href="#">Departments</a>
         </nav>
         <div className="auth-buttons">
-          <button className="landing-login-btn" onClick={() => navigate("/login")}>
-            Login
-          </button>
-          <button className="landing-reg-btn" onClick={() => navigate("/register")}>
-            Register
-          </button>
+          {user ? (
+            <>
+              <span style={{fontWeight: "bold", color: "#1e40af"}}>Hi, {user.username}</span>
+              <button className="landing-login-btn" onClick={() => { localStorage.removeItem("user"); setUser(null); }}>Logout</button>
+            </>
+          ) : (
+            <>
+              <button className="landing-login-btn" onClick={() => navigate("/login")}>Login</button>
+              <button className="landing-reg-btn" onClick={() => navigate("/register")}>Register</button>
+            </>
+          )}
         </div>
       </header>
 
@@ -509,7 +518,21 @@ function BookingPage({ doctors, form, error, handleChange, handleSubmit, setErro
 export default App;
 
 
-function RegisterPage({ navigate }) {
+function RegisterPage({ navigate, setUser }) {
+  const [formData, setFormData] = useState({ username: "", email: "", password: "" });
+  const [error, setError] = useState("");
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      const user = await registerUser(formData);
+      localStorage.setItem("user", JSON.stringify(user));
+      setUser(user); navigate("/dashboard");
+    } catch (err) {
+      setError(err.response?.data?.message || "Registration failed");
+    }
+  };
+
   return (
     <div className="auth-page">
       <div className="auth-left" style={{ backgroundImage: `url(${registerBgImg})` }}>
@@ -542,21 +565,21 @@ function RegisterPage({ navigate }) {
               <label>User Name</label>
               <div className="input-group">
                 <FaUser className="input-icon" />
-                <input type="text" placeholder="Enter User Name" required />
+                <input type="text" placeholder="Enter User Name" required value={formData.username} onChange={(e) => setFormData({...formData, username: e.target.value})} />
               </div>
             </div>
             <div className="input-wrapper">
               <label>Email</label>
               <div className="input-group">
                 <FaEnvelope className="input-icon" />
-                <input type="email" placeholder="Enter Email" required />
+                <input type="email" placeholder="Enter Email" required value={formData.email} onChange={(e) => setFormData({...formData, email: e.target.value})} />
               </div>
             </div>
             <div className="input-wrapper">
               <label>Password</label>
               <div className="input-group">
                 <FaLock className="input-icon" />
-                <input type="password" placeholder="Password" required />
+                <input type="password" placeholder="Password" required value={formData.password} onChange={(e) => setFormData({...formData, password: e.target.value})} />
               </div>
             </div>
 
@@ -580,7 +603,21 @@ function RegisterPage({ navigate }) {
 
 
 
-function LoginPage({ navigate }) {
+function LoginPage({ navigate, setUser }) {
+  const [formData, setFormData] = useState({ email: "", password: "" });
+  const [error, setError] = useState("");
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      const user = await loginUser(formData);
+      localStorage.setItem("user", JSON.stringify(user));
+      setUser(user); navigate("/dashboard");
+    } catch (err) {
+      setError(err.response?.data?.message || "Login failed");
+    }
+  };
+
   return (
     <div className="auth-page">
       <div className="auth-left" style={{ backgroundImage: `url(${loginBgImg})` }}>
@@ -613,14 +650,14 @@ function LoginPage({ navigate }) {
               <label>Email</label>
               <div className="input-group">
                 <FaEnvelope className="input-icon" />
-                <input type="email" placeholder="Enter Email" required />
+                <input type="email" placeholder="Enter Email" required value={formData.email} onChange={(e) => setFormData({...formData, email: e.target.value})} />
               </div>
             </div>
             <div className="input-wrapper">
               <label>Password</label>
               <div className="input-group">
                 <FaLock className="input-icon" />
-                <input type="password" placeholder="Password" required />
+                <input type="password" placeholder="Password" required value={formData.password} onChange={(e) => setFormData({...formData, password: e.target.value})} />
               </div>
             </div>
 
@@ -643,3 +680,60 @@ function LoginPage({ navigate }) {
 
 
 
+
+
+
+
+
+
+
+
+
+function DashboardPage({ navigate, user, setUser }) {
+  return (
+    <div className="app">
+      <header className="header">
+        <div className="logo" onClick={() => navigate("/")} style={{cursor: "pointer"}}>MediCore</div>
+        <nav className="nav">
+          <button type="button" className="nav-button" onClick={() => navigate("/")}>
+            Home
+          </button>
+          <button type="button" className="nav-button" onClick={() => { localStorage.removeItem("user"); setUser(null); navigate("/"); }}>
+            Logout
+          </button>
+        </nav>
+      </header>
+
+      <main className="container page-content">
+        <div className="dash-hero-card">
+          <p className="dash-eyebrow">HEALTHCARE MADE SIMPLE</p>
+          <h1>Book medical appointments with confidence.</h1>
+          <p className="dash-subtitle">
+            MediCore helps patients quickly schedule visits with trusted doctors, explore available
+            specialists, and manage appointments in one place.
+          </p>
+          <div className="dash-actions">
+            <button className="book-button" onClick={() => navigate("/booking")}>Book an Appointment</button>
+            <button className="secondary-button" onClick={() => navigate("/doctors")}>View Doctors</button>
+            <button className="secondary-button" onClick={() => navigate("/appointments")}>View Appointments</button>
+          </div>
+        </div>
+
+        <div className="dash-info-cards">
+          <div className="dash-info-card">
+            <h3>What this app does</h3>
+            <p>Patients can browse doctor profiles, choose a preferred date and time, and reserve a medical appointment in seconds.</p>
+          </div>
+          <div className="dash-info-card">
+            <h3>Why it matters</h3>
+            <p>It reduces waiting, makes scheduling easier, and keeps appointment information organized for both patients and healthcare staff.</p>
+          </div>
+          <div className="dash-info-card">
+            <h3>Who it is for</h3>
+            <p>Ideal for clinics, hospitals, and patients who want a smooth digital appointment booking experience without confusion.</p>
+          </div>
+        </div>
+      </main>
+    </div>
+  );
+}
