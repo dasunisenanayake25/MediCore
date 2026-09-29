@@ -560,7 +560,7 @@ function RegisterPage({ navigate, setUser }) {
             <p>Register a new membership</p>
           </div>
 
-          <form className="auth-form" onSubmit={(e) => { e.preventDefault(); navigate("/"); }}>
+          <form className="auth-form" onSubmit={handleSubmit}>{error && <p style={{color: "red", fontSize: "13px", textAlign: "center"}}>{error}</p>}
             <div className="input-wrapper">
               <label>User Name</label>
               <div className="input-group">
@@ -645,7 +645,7 @@ function LoginPage({ navigate, setUser }) {
             <p>Access your account</p>
           </div>
 
-          <form className="auth-form" onSubmit={(e) => { e.preventDefault(); navigate("/"); }}>
+          <form className="auth-form" onSubmit={handleSubmit}>{error && <p style={{color: "red", fontSize: "13px", textAlign: "center"}}>{error}</p>}
             <div className="input-wrapper">
               <label>Email</label>
               <div className="input-group">
@@ -737,3 +737,4 @@ function DashboardPage({ navigate, user, setUser }) {
     </div>
   );
 }
+
