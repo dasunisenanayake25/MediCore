@@ -77,17 +77,17 @@ function LandingPage({ navigate, user, setUser }) {
         <h2>Expertise & specializations</h2>
         <div className="expertise-grid">
           {[
-            { title: "Dental Care", icon: <FaTooth /> },
-            { title: "Neurology", icon: <FaBrain /> },
-            { title: "Cardiology", icon: <FaHeartbeat /> },
-            { title: "Gastroenterology", icon: <FaStethoscope /> },
-            { title: "Orthopaedics", icon: <FaBone /> },
-            { title: "Pulmonology", icon: <FaLungs /> }
+            { title: "Dental Care", icon: <FaTooth />, description: "Healthy Teeth, Brighter Smiles" },
+            { title: "Neurology", icon: <FaBrain />, description: "Expert Care for Nervous System" },
+            { title: "Cardiology", icon: <FaHeartbeat />, description: "Specialized Care for Heart Health" },
+            { title: "Gastroenterology", icon: <FaStethoscope />, description: "Better Digestive Health and Care" },
+            { title: "Orthopaedics", icon: <FaBone />, description: "Stronger Bones, Joints, and Mobility" },
+            { title: "Pulmonology", icon: <FaLungs />, description: "Expert Care for Lung Health" }
           ].map((item, index) => (
             <div className="expertise-card" key={index}>
               <div className="card-icon" style={{color: "#3b82f6"}}>{item.icon}</div>
               <h3>{item.title}</h3>
-              <p>Lorem ipsum dolor sit amet, consect adip elit, sed do eiusmod tempor.</p>
+              <p>{item.description}</p>
             </div>
           ))}
         </div>
@@ -97,17 +97,35 @@ function LandingPage({ navigate, user, setUser }) {
         <div className="journey-content">
           <h2>Start Your<br/>Wellness Journey<br/>Now</h2>
           <p>
-            Lorem ipsum dolor sit amet, consectetur adipiscing elit, standard dummy text ever since the 1500s, when an unknown to the scrambled it to make a type specimen book.
+            MediCore makes healthcare simpler, smarter, and more accessible. Our medical appointment platform helps patients easily discover doctors, check availability, and book appointments anytime, anywhere. With a smooth and user-friendly experience, MediCore reduces waiting time and takes the stress out of managing healthcare appointments—so you can focus on what matters most: your well-being.
           </p>
-          <button className="contact-btn">Contact us <FaPhoneAlt style={{marginLeft: "8px"}}/></button>
+          <a href="#contact" className="contact-btn" style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", textDecoration: "none" }}>
+            Contact us <FaPhoneAlt style={{ marginLeft: "8px" }} />
+          </a>
         </div>
         <div className="journey-image-wrapper">
           <img src={journeyDoctorImg} alt="Doctor" className="journey-img" />
         </div>
       </section>
 
-      <section className="landing-lab">
-        <h2>We Have Lab Test Facilities,<br/>So Book Yours Todays!</h2>
+      <section className="landing-services">
+        <h2>Our Services</h2>
+        <div className="services-grid">
+          {[
+            { title: "Doctor Consultations and OPD", text: "Expert specialist appointments and clinical care. Doctor Consultations & OPD." },
+            { title: "Inpatient and Ward Management", text: "Dedicated patient observation and comfortable ward care." },
+            { title: "Medical Records", text: "Secure, centralized access to patient health files." },
+            { title: "24/7 Nursing Care", text: "Round-the-clock inpatient observation and medical support." },
+            { title: "Lab Diagnostics", text: "Rapid diagnostic testing and digital reports." },
+            { title: "Pharmacy Services", text: "Fast electronic prescriptions and safe dispensing." }
+          ].map((service, index) => (
+            <div className="service-card" key={index}>
+              <h3>{service.title}</h3>
+              <p>{service.text}</p>
+              
+            </div>
+          ))}
+        </div>
       </section>
 
       <footer id="contact" className="landing-footer">
@@ -129,8 +147,8 @@ function LandingPage({ navigate, user, setUser }) {
 
           <div className="footer-contact">
             <h4>Contact Us</h4>
-            <p><FaPhoneAlt /> +1 234 567 8900</p>
-            <p><FaEnvelope /> info@medicore.com</p>
+            <p><FaPhoneAlt /> +94 76 123 4567</p>
+            <p><FaEnvelope /> admin@medicore.com</p>
           </div>
         </div>
         <div className="footer-bottom">

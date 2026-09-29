@@ -712,7 +712,7 @@ section[id], footer[id] {
 
 .landing-lab {
   text-align: center;
-  padding: 80px 8%;
+  padding: 80px 8% 20px;
   background-color: #f8faff;
 }
 
@@ -721,6 +721,68 @@ section[id], footer[id] {
   color: #1e3a8a;
 }
 
+.landing-services {
+  background: #eefaf8;
+  padding: 20px 8% 90px;
+  text-align: center;
+}
+
+.landing-services h2 {
+  font-size: clamp(2.2rem, 3vw, 3.2rem);
+  color: #1e3a8a;
+  margin-bottom: 30px;
+  font-weight: 800;
+}
+
+.services-grid {
+  max-width: 1200px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 26px;
+}
+
+.service-card {
+  position: relative;
+  background: rgba(255, 255, 255, 0.7);
+  border: 2px solid rgba(241, 244, 244, 0.7);
+  border-radius: 14px;
+  min-height: 190px;
+  padding: 26px 22px 28px;
+  text-align: left;
+  box-shadow: 0 8px 25px rgba(15, 118, 110, 0.06);
+}
+
+.service-card h3 {
+  color: #1f2a37;
+  font-size: clamp(1.2rem, 2vw, 1.65rem);
+  margin-bottom: 14px;
+  line-height: 1.4;
+  font-weight: 700;
+}
+
+.service-card p {
+  color: #465466;
+  font-size: 15px;
+  line-height: 1.6;
+  max-width: 92%;
+}
+
+.service-arrow {
+  position: absolute;
+  right: 16px;
+  bottom: 16px;
+  width: 34px;
+  height: 34px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 10px;
+  background: #f4f8f8;
+  color: #1d4ed8;
+  font-size: 20px;
+  border: 1px solid rgba(148, 163, 184, 0.4);
+}
 
 .landing-logo-container {
   display: flex;
