@@ -153,10 +153,10 @@ function LandingPage({ navigate, user, setUser }) {
           <div className="logo-tagline">Care Beyond Measure</div>
         </div>
         <nav className="landing-nav">
-          <a href="#" onClick={(e) => { e.preventDefault(); navigate("/"); }}>Home</a>
-          <a href="#">About</a>
-          <a href="#">Departments</a>
-          <a href="#">Contact Us</a>
+          <a href="#home">Home</a>
+          <a href="#departments">About</a>
+          <a href="#about">Departments</a>
+          <a href="#contact">Contact Us</a>
         </nav>
         <div className="auth-buttons">
           {user ? (
@@ -173,7 +173,7 @@ function LandingPage({ navigate, user, setUser }) {
         </div>
       </header>
 
-      <section className="landing-hero">
+      <section id="home" className="landing-hero">
         <div className="hero-content">
           <h1>Your health,<br/>Our priority</h1>
           <p className="hero-desc">
@@ -188,7 +188,7 @@ function LandingPage({ navigate, user, setUser }) {
         </div>
       </section>
 
-      <section className="landing-expertise">
+      <section id="about" className="landing-expertise">
         <h2>Expertise & specializations</h2>
         <div className="expertise-grid">
           {[
@@ -208,7 +208,7 @@ function LandingPage({ navigate, user, setUser }) {
         </div>
       </section>
 
-      <section className="landing-journey">
+      <section id="departments" className="landing-journey">
         <div className="journey-content">
           <h2>Start Your<br/>Wellness Journey<br/>Now</h2>
           <p>
@@ -225,7 +225,7 @@ function LandingPage({ navigate, user, setUser }) {
         <h2>We Have Lab Test Facilities,<br/>So Book Yours Todays!</h2>
       </section>
 
-      <footer className="landing-footer">
+      <footer id="contact" className="landing-footer">
         <div className="footer-content">
           <div className="footer-brand">
             <div className="footer-logo">
@@ -236,10 +236,10 @@ function LandingPage({ navigate, user, setUser }) {
           
           <div className="footer-links">
             <h4>Quick Links</h4>
-            <a href="#">Home</a>
-            <a href="#">About Us</a>
-            <a href="#">Departments</a>
-            <a href="#">Contact</a>
+            <a href="#home">Home</a>
+            <a href="#departments">About Us</a>
+            <a href="#about">Departments</a>
+            <a href="#contact">Contact</a>
           </div>
 
           <div className="footer-contact">
