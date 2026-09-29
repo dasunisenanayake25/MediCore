@@ -143,6 +143,15 @@ function AppRoutes() {
 }
 
 function LandingPage({ navigate, user, setUser }) {
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
+  const navLinks = [
+    { label: "Home", href: "#home" },
+    { label: "About", href: "#departments" },
+    { label: "Departments", href: "#about" },
+    { label: "Contact Us", href: "#contact" },
+  ];
+
   return (
     <div className="landing-layout">
       <header className="landing-header">
@@ -152,11 +161,26 @@ function LandingPage({ navigate, user, setUser }) {
           </div>
           <div className="logo-tagline">Care Beyond Measure</div>
         </div>
-        <nav className="landing-nav">
-          <a href="#home">Home</a>
-          <a href="#departments">About</a>
-          <a href="#about">Departments</a>
-          <a href="#contact">Contact Us</a>
+
+        <button
+          type="button"
+          className="mobile-menu-toggle"
+          aria-label="Toggle navigation menu"
+          onClick={() => setMobileMenuOpen((prev) => !prev)}
+        >
+          ☰
+        </button>
+
+        <nav className={`landing-nav ${mobileMenuOpen ? "mobile-open" : ""}`}>
+          {navLinks.map((link) => (
+            <a
+              key={link.label}
+              href={link.href}
+              onClick={() => setMobileMenuOpen(false)}
+            >
+              {link.label}
+            </a>
+          ))}
         </nav>
         <div className="auth-buttons">
           {user ? (

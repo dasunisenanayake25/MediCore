@@ -300,22 +300,167 @@ button {
   color: #991b1b;
 }
 
+@media (max-width: 1100px) {
+  .landing-hero,
+  .landing-journey,
+  .landing-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .landing-header {
+    width: 100%;
+    gap: 18px;
+  }
+
+  .landing-hero,
+  .landing-journey {
+    gap: 30px;
+  }
+
+  .hero-content,
+  .journey-content,
+  .hero-image-wrapper,
+  .journey-image-wrapper {
+    max-width: 100%;
+    width: 100%;
+  }
+
+  .landing-nav {
+    width: 100%;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  .expertise-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
 @media (max-width: 800px) {
   .form-grid,
   .feature-grid,
-  .doctors-grid {
+  .doctors-grid,
+  .expertise-grid {
     grid-template-columns: 1fr;
   }
 
   .header,
-  .page-header-row {
+  .page-header-row,
+  .landing-header {
     flex-direction: column;
     align-items: flex-start;
     gap: 15px;
   }
 
+  .landing-header {
+    padding-left: 20px;
+    padding-right: 20px;
+    flex-wrap: wrap;
+  }
+
+  .mobile-menu-toggle {
+    display: inline-flex;
+    margin-left: auto;
+  }
+
+  .landing-nav {
+    display: none;
+    width: 100%;
+    grid-template-columns: 1fr;
+    gap: 10px;
+    margin-top: 10px;
+  }
+
+  .landing-nav.mobile-open {
+    display: grid;
+  }
+
+  .landing-nav a {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 42px;
+    padding: 10px 14px;
+    border-radius: 10px;
+    background: rgba(30, 64, 175, 0.04);
+    font-size: 14px;
+    text-align: center;
+  }
+
+  .auth-buttons {
+    width: 100%;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+  }
+
+  .landing-login-btn,
+  .landing-reg-btn,
+  .hero-btn,
+  .contact-btn {
+    width: 100%;
+    min-height: 46px;
+    padding: 12px 18px;
+  }
+
+  .landing-hero,
+  .landing-journey,
+  .landing-expertise,
+  .landing-lab,
+  .landing-footer {
+    padding-left: 20px;
+    padding-right: 20px;
+  }
+
+  .hero-content h1,
+  .journey-content h2,
+  .landing-expertise h2,
+  .landing-lab h2 {
+    font-size: 2rem;
+  }
+
   .action-row {
     flex-direction: column;
+  }
+
+  .logo,
+  .landing-logo {
+    font-size: 22px;
+  }
+
+  .container {
+    width: 92%;
+  }
+
+  .booking-card,
+  .appointments-card {
+    padding: 18px;
+  }
+
+  .appointments-table th,
+  .appointments-table td {
+    padding: 10px 8px;
+    font-size: 13px;
+  }
+}
+
+@media (max-width: 500px) {
+  .landing-nav,
+  .auth-buttons {
+    grid-template-columns: 1fr;
+  }
+
+  .landing-header {
+    align-items: stretch;
+  }
+
+  .landing-logo-container {
+    width: 100%;
+  }
+
+  .logo-tagline {
+    margin-left: 0;
   }
 }
 /* NEW LANDING PAGE STYLES */
@@ -339,6 +484,7 @@ section[id], footer[id] {
   align-items: center;
   padding: 20px 8%;
   background-color: #f8faff;
+  position: relative;
 }
 
 .landing-logo {
@@ -348,6 +494,21 @@ section[id], footer[id] {
   display: flex;
   align-items: center;
   gap: 8px;
+}
+
+.mobile-menu-toggle {
+  display: none;
+  border: 1px solid #cbd5e1;
+  background: #ffffff;
+  color: #1e3a8a;
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  font-size: 24px;
+  line-height: 1;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
 }
 
 .landing-nav {
