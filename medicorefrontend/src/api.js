@@ -47,3 +47,14 @@ export const loginUser = async (credentials) => {
   return response.data;
 };
 
+
+export const getUsers = async () => {
+  const response = await API.get('/admin/users');
+  return response.data;
+};
+
+export const updateUserStatus = async (id, status) => {
+  const response = await API.patch("/admin/users/" + id + "/status", { status });
+  return response.data;
+};
+

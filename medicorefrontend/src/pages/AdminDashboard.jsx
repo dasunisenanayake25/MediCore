@@ -1,4 +1,5 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
+import { getUsers, updateUserStatus } from '../api';
 import { useNavigate } from 'react-router-dom';
 import { 
   FaStethoscope, FaSearch, FaBell, FaCog, FaUserCircle, 
@@ -8,6 +9,34 @@ import {
 
 function AdminDashboard({ user }) {
   const navigate = useNavigate();
+
+  const [activeTab, setActiveTab] = useState('dashboard');
+  const [usersList, setUsersList] = useState([]);
+
+  useEffect(() => {
+    if (activeTab === 'users') {
+      fetchUsers();
+    }
+  }, [activeTab]);
+
+  const fetchUsers = async () => {
+    try {
+      const data = await getUsers();
+      setUsersList(data);
+    } catch (err) {
+      console.error("Failed to fetch users", err);
+    }
+  };
+
+  const handleStatusChange = async (id, newStatus) => {
+    try {
+      await updateUserStatus(id, newStatus);
+      fetchUsers(); // refresh
+    } catch (err) {
+      console.error("Failed to update status", err);
+    }
+  };
+
 
   // Dummy data
   const patients = [
@@ -27,15 +56,11 @@ function AdminDashboard({ user }) {
           <span>MediCore</span>
         </div>
         
-        <div className="admin-profile-mini">
-          <img src="https://i.pravatar.cc/150?img=32" alt="Admin" />
-          <h4>Ema Wilson</h4>
-          <p>Department Admin</p>
-        </div>
+        
 
         <nav className="admin-nav">
           <div className="nav-group">
-            <a href="#" className="nav-item active"><FaHome /> Medical Dashboard</a>
+            <a href="#" className={`nav-item ${activeTab === "dashboard" ? "active" : ""}`} onClick={(e) => { e.preventDefault(); setActiveTab("dashboard"); }}><FaHome /> Medical Dashboard</a>
             <a href="#" className="nav-item"><FaHospitalAlt /> Clinic Dashboard</a>
             <a href="#" className="nav-item"><FaCalendarAlt /> Appointments</a>
           </div>
@@ -46,7 +71,7 @@ function AdminDashboard({ user }) {
           </div>
           <div className="nav-group">
             <p className="nav-label">Patients</p>
-            <a href="#" className="nav-item"><FaUserInjured /> Patients List</a>
+            <a href="#" className={`nav-item ${activeTab === "users" ? "active" : ""}`} onClick={(e) => { e.preventDefault(); setActiveTab("users"); }}><FaUserInjured /> User Management</a>
             <a href="#" className="nav-item"><FaNotesMedical /> Add Patient</a>
           </div>
         </nav>
@@ -68,85 +93,118 @@ function AdminDashboard({ user }) {
           <div className="admin-header-icons">
             <FaBell className="hd-ic" />
             <FaCog className="hd-ic" />
-            <div className="hd-profile">
-              <img src="https://i.pravatar.cc/150?img=32" alt="Profile" />
-            </div>
+            
           </div>
         </header>
 
         {/* DASHBOARD CONTENT */}
         <main className="admin-main">
           
-          <div className="admin-hero-banner">
-            <div className="hero-text">
-              <p>Good Morning,</p>
-              <h2>Dr. Ema Wilson</h2>
-              <p>Your schedule today.</p>
-              <div className="hero-stats">
-                <div className="stat-pill"><FaCalendarAlt/> 86 Appointments</div>
-                <div className="stat-pill"><FaNotesMedical/> 23 Surgeries</div>
-              </div>
-            </div>
-            <div className="hero-chart-placeholder">
-              <h3>Patients</h3>
-              <div className="fake-line-chart"></div>
-              <p>Increased patients by 98 in the last Seven days.</p>
-            </div>
-          </div>
+          
+          {activeTab === 'dashboard' ? (
+            <>
+              
+                
 
-          <div className="admin-grid-top">
-            <div className="admin-card">
-              <h3>Doctors</h3>
-              <ul className="admin-doc-list">
-                <li><img src="https://i.pravatar.cc/150?img=11" alt="doc"/> <div><strong>Dr. Smith Chang</strong><br/><span>Cardiology</span></div> <span className="status avail">Available</span></li>
-                <li><img src="https://i.pravatar.cc/150?img=12" alt="doc"/> <div><strong>Dr. Dmitriy Groshev</strong><br/><span>Orthopedics</span></div> <span className="status avail">Available</span></li>
-                <li><img src="https://i.pravatar.cc/150?img=13" alt="doc"/> <div><strong>Dr. Sheryl Glass</strong><br/><span>Dermatology</span></div> <span className="status unavail">Not Available</span></li>
-              </ul>
-            </div>
-            
-            <div className="admin-card">
-              <h3>Consultation</h3>
-              <div className="donut-chart-mock">
-                <div className="donut-circle"><span>80%</span><br/>New: 600</div>
+              <div className="admin-grid-top">
+                <div className="admin-card">
+                  <h3>Doctors</h3>
+                  <ul className="admin-doc-list">
+                    <li><img src="https://i.pravatar.cc/150?img=11" alt="doc"/> <div><strong>Dr. Smith Chang</strong><br/><span>Cardiology</span></div> <span className="status avail">Available</span></li>
+                    <li><img src="https://i.pravatar.cc/150?img=12" alt="doc"/> <div><strong>Dr. Dmitriy Groshev</strong><br/><span>Orthopedics</span></div> <span className="status avail">Available</span></li>
+                    <li><img src="https://i.pravatar.cc/150?img=13" alt="doc"/> <div><strong>Dr. Sheryl Glass</strong><br/><span>Dermatology</span></div> <span className="status unavail">Not Available</span></li>
+                  </ul>
+                </div>
+                
+                <div className="admin-card">
+                  <h3>Consultation</h3>
+                  <div className="donut-chart-mock">
+                    <div className="donut-circle"><span>80%</span><br/>New: 600</div>
+                  </div>
+                  <div className="gender-stats">
+                    <div className="g-stat"><FaUserCircle/> 86 Male</div>
+                    <div className="g-stat"><FaUserCircle/> 38 Female</div>
+                  </div>
+                </div>
               </div>
-              <div className="gender-stats">
-                <div className="g-stat"><FaUserCircle/> 86 Male</div>
-                <div className="g-stat"><FaUserCircle/> 38 Female</div>
-              </div>
-            </div>
-          </div>
 
-          <div className="admin-card table-card">
-            <h3>Patients</h3>
-            <table className="admin-table">
-              <thead>
-                <tr>
-                  <th>#</th><th>Patient Name</th><th>Age</th><th>Consulting Doctor</th><th>Department</th><th>Date</th><th>Time</th><th>Disease</th><th>Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                {patients.map(p => (
-                  <tr key={p.id}>
-                    <td>0{p.id}</td>
-                    <td><strong>{p.name}</strong></td>
-                    <td>{p.age}</td>
-                    <td><div className="tbl-doc"><img src={`https://i.pravatar.cc/150?img=${p.id + 20}`} alt="doc"/> {p.doc}</div></td>
-                    <td>{p.dept}</td>
-                    <td>{p.date}</td>
-                    <td>{p.time}</td>
-                    <td>{p.disease}</td>
-                    <td>
-                      <div className="tbl-actions">
-                        <button className="act-btn accept"><FaCheck/></button>
-                        <button className="act-btn reject"><FaTimes/></button>
-                        <button className="act-btn edit"><FaEdit/></button>
-                      </div>
-                    </td>
+              <div className="admin-card table-card">
+                <h3>Recent Activity</h3>
+                <table className="admin-table">
+                  <thead>
+                    <tr>
+                      <th>#</th><th>Patient Name</th><th>Age</th><th>Consulting Doctor</th><th>Department</th><th>Date</th><th>Time</th><th>Disease</th><th>Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {patients.map(p => (
+                      <tr key={p.id}>
+                        <td>0{p.id}</td>
+                        <td><strong>{p.name}</strong></td>
+                        <td>{p.age}</td>
+                        <td><div className="tbl-doc"><img src={`https://i.pravatar.cc/150?img=${p.id + 20}`} alt="doc"/> {p.doc}</div></td>
+                        <td>{p.dept}</td>
+                        <td>{p.date}</td>
+                        <td>{p.time}</td>
+                        <td>{p.disease}</td>
+                        <td>
+                          <div className="tbl-actions">
+                            <button className="act-btn accept"><FaCheck/></button>
+                            <button className="act-btn reject"><FaTimes/></button>
+                            <button className="act-btn edit"><FaEdit/></button>
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </>
+          ) : (
+            <div className="admin-card table-card">
+              <h3 style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}>
+                User Management (Patients & Doctors)
+              </h3>
+              <table className="admin-table">
+                <thead>
+                  <tr>
+                    <th>ID</th>
+                    <th>Username</th>
+                    <th>Email</th>
+                    <th>Role</th>
+                    <th>Status</th>
+                    <th>Actions</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+                </thead>
+                <tbody>
+                  {usersList.map((u, idx) => (
+                    <tr key={u._id}>
+                      <td>{u._id.substring(0,8)}...</td>
+                      <td><strong>{u.username}</strong></td>
+                      <td>{u.email}</td>
+                      <td style={{textTransform: 'capitalize'}}>{u.role || 'Patient'}</td>
+                      <td>
+                        <span className={`status ${u.status === 'suspended' ? 'unavail' : 'avail'}`}>
+                          {u.status || 'active'}
+                        </span>
+                      </td>
+                      <td>
+                        <div className="tbl-actions">
+                          {u.status === 'suspended' ? (
+                            <button className="act-btn accept" onClick={() => handleStatusChange(u._id, 'active')} title="Activate"><FaCheck/></button>
+                          ) : (
+                            <button className="act-btn reject" onClick={() => handleStatusChange(u._id, 'suspended')} title="Suspend"><FaTimes/></button>
+                          )}
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                  {usersList.length === 0 && <tr><td colSpan="6" style={{textAlign: 'center'}}>No users found.</td></tr>}
+                </tbody>
+              </table>
+            </div>
+          )}
+
 
         </main>
       </div>
@@ -155,4 +213,6 @@ function AdminDashboard({ user }) {
 }
 
 export default AdminDashboard;
+
+
 
