@@ -12,7 +12,7 @@ function LoginPage({ navigate, setUser }) {
     try {
       const user = await loginUser(formData);
       localStorage.setItem("user", JSON.stringify(user));
-      setUser(user); navigate("/dashboard");
+      setUser(user); if (user.email === "admin@medicore.com") { navigate("/admin"); } else { navigate("/dashboard"); }
     } catch (err) {
       setError(err.response?.data?.message || "Login failed");
     }
@@ -78,3 +78,4 @@ function LoginPage({ navigate, setUser }) {
 }
 
 export default LoginPage;
+

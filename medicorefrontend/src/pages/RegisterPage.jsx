@@ -12,7 +12,7 @@ function RegisterPage({ navigate, setUser }) {
     try {
       const user = await registerUser(formData);
       localStorage.setItem("user", JSON.stringify(user));
-      setUser(user); navigate("/dashboard");
+      setUser(user); if (user.email === "admin@medicore.com") { navigate("/admin"); } else { navigate("/dashboard"); }
     } catch (err) {
       setError(err.response?.data?.message || "Registration failed");
     }
@@ -85,3 +85,4 @@ function RegisterPage({ navigate, setUser }) {
 }
 
 export default RegisterPage;
+

@@ -43,10 +43,11 @@ function LandingPage({ navigate, user, setUser }) {
             </a>
           ))}
         </nav>
-        <div className="auth-buttons">
+        <div className="auth-buttons" style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
           {user ? (
             <>
               <span style={{fontWeight: "bold", color: "#1e40af"}}>Hi, {user.username}</span>
+              <button className="landing-reg-btn" onClick={() => user.email === "admin@medicore.com" ? navigate("/admin") : navigate("/dashboard")}>Dashboard</button>
               <button className="landing-login-btn" onClick={() => { localStorage.removeItem("user"); setUser(null); }}>Logout</button>
             </>
           ) : (
@@ -99,9 +100,6 @@ function LandingPage({ navigate, user, setUser }) {
           <p>
             MediCore makes healthcare simpler, smarter, and more accessible. Our medical appointment platform helps patients easily discover doctors, check availability, and book appointments anytime, anywhere. With a smooth and user-friendly experience, MediCore reduces waiting time and takes the stress out of managing healthcare appointments—so you can focus on what matters most: your well-being.
           </p>
-          <a href="#contact" className="contact-btn" style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", textDecoration: "none" }}>
-            Contact us <FaPhoneAlt style={{ marginLeft: "8px" }} />
-          </a>
         </div>
         <div className="journey-image-wrapper">
           <img src={journeyDoctorImg} alt="Doctor" className="journey-img" />
@@ -160,4 +158,6 @@ function LandingPage({ navigate, user, setUser }) {
 }
 
 export default LandingPage;
+
+
 

@@ -1,7 +1,10 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { FaSearch, FaStar, FaCalendarAlt, FaPhoneAlt, FaStethoscope } from "react-icons/fa";
 
 function DoctorsPage({ doctors, navigate }) {
+  const [activeCategory, setActiveCategory] = useState("ALL");
+  const categories = ["ALL", "DENTAL CARE", "NEUROLOGY", "CARDIOLOGY", "GASTROENTEROLOGY", "ORTHOPAEDICS", "PULMONOLOGY"];
+
   const enrichedDoctors = doctors.map((doc, idx) => ({
     ...doc,
     rating: doc.rating || (4.5 + (idx % 5) * 0.1).toFixed(1),
@@ -10,11 +13,19 @@ function DoctorsPage({ doctors, navigate }) {
   }));
 
   const displayDoctors = enrichedDoctors.length > 0 ? enrichedDoctors : [
-    { _id: "d1", name: "Dr. Topon Kumar", specialization: "NEUROLOGIST", rating: "4.5", address: "1200 Natalie Brook Apt. 966", image: "https://i.pravatar.cc/150?img=11" },
-    { _id: "d2", name: "Dr. Albert Miles", specialization: "CARDIOLOGIST", rating: "5.0", address: "1200 Natalie Brook Apt. 966", image: "https://i.pravatar.cc/150?img=12" },
-    { _id: "d3", name: "Gabriel Holt", specialization: "NEUROLOGIST", rating: "4.8", address: "1200 Natalie Brook Apt. 966", image: "https://i.pravatar.cc/150?img=5" },
-    { _id: "d4", name: "Lois Saunders", specialization: "ONCOLOGY", rating: "4.3", address: "1200 Natalie Brook Apt. 966", image: "https://i.pravatar.cc/150?img=14" }
+    { _id: "d1", name: "Dr. Topon Kumar", specialization: "NEUROLOGY", rating: "4.5", address: "1200 Natalie Brook Apt. 966", image: "https://i.pravatar.cc/150?img=11" },
+    { _id: "d2", name: "Dr. Albert Miles", specialization: "CARDIOLOGY", rating: "5.0", address: "1200 Natalie Brook Apt. 966", image: "https://i.pravatar.cc/150?img=12" },
+    { _id: "d3", name: "Gabriel Holt", specialization: "NEUROLOGY", rating: "4.8", address: "1200 Natalie Brook Apt. 966", image: "https://i.pravatar.cc/150?img=5" },
+    { _id: "d4", name: "Lois Saunders", specialization: "PULMONOLOGY", rating: "4.3", address: "1200 Natalie Brook Apt. 966", image: "https://i.pravatar.cc/150?img=14" }
   ];
+
+  const filteredDoctors = displayDoctors.filter(doc => {
+    if (activeCategory === "ALL") return true;
+    const spec = doc.specialization.toUpperCase();
+    if (activeCategory === "NEUROLOGY" && spec.includes("NEUROLOG")) return true;
+    if (activeCategory === "CARDIOLOGY" && spec.includes("CARDIOLOG")) return true;
+    return spec.includes(activeCategory);
+  });
 
   return (
     <div className="doctors-layout">
@@ -34,18 +45,20 @@ function DoctorsPage({ doctors, navigate }) {
 
       <div className="doc-filter-bar">
         <div className="doc-tabs">
-          <span className="doc-tab active">ALL</span>
-          <span className="doc-tab">DENTAL CARE</span>
-          <span className="doc-tab">NEUROLOGY</span>
-          <span className="doc-tab">CARDIOLOGY</span>
-          <span className="doc-tab">GASTROENTEROLOGY</span>
-          <span className="doc-tab">ORTHOPAEDICS</span>
-          <span className="doc-tab">PULMONOLOGY</span>
+          {categories.map(cat => (
+            <span 
+              key={cat} 
+              className={`doc-tab ${activeCategory === cat ? "active" : ""}`}
+              onClick={() => setActiveCategory(cat)}
+            >
+              {cat}
+            </span>
+          ))}
         </div>
       </div>
 
       <div className="doc-grid">
-        {displayDoctors.map((doc) => (
+        {filteredDoctors.map((doc) => (
           <div className="doc-card" key={doc._id}>
             <div className="doc-avatar">
               <img src={doc.image} alt={doc.name} />
@@ -71,3 +84,5 @@ function DoctorsPage({ doctors, navigate }) {
 }
 
 export default DoctorsPage;
+
+

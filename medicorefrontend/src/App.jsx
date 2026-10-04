@@ -23,6 +23,7 @@ import BookingPage from "./pages/BookingPage";
 import RegisterPage from "./pages/RegisterPage";
 import LoginPage from "./pages/LoginPage";
 import DashboardPage from "./pages/DashboardPage";
+import AdminDashboard from "./pages/AdminDashboard";
 
 const initialForm = {
   patientName: "",
@@ -115,6 +116,7 @@ function AppRoutes() {
     <Routes>
       <Route path="/" element={<LandingPage navigate={navigate} user={user} setUser={setUser} />} />
       <Route path="/register" element={<RegisterPage navigate={navigate} setUser={setUser} />} />
+      <Route path="/admin" element={<AdminDashboard user={user} />} />
       <Route path="/dashboard" element={<DashboardPage navigate={navigate} user={user} setUser={setUser} />} />
       <Route path="/login" element={<LoginPage navigate={navigate} setUser={setUser} />} />
       <Route
@@ -159,6 +161,10 @@ function AppRoutes() {
 
 
 export default App;
+
+
+
+
 
 
 
