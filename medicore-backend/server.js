@@ -13,7 +13,7 @@ const demoDoctors = [
   { _id: 'doc-3', name: 'Dr. Priya Nair', specialization: 'Neurology', email: 'priya@medicore.com' }
 ];
 const demoAppointments = [];
-let demoUsers = [];
+let demoUsers = [{ _id: 'admin-1', username: 'System Admin', email: 'admin@medicore.com', password: 'password123', role: 'admin', status: 'active' }];
 
 app.use(cors({ origin: true, credentials: true }));
 app.use(express.json());
@@ -175,5 +175,6 @@ const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
   console.log("Server running on port " + PORT);
 });
+
 
 
