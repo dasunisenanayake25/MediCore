@@ -237,32 +237,32 @@ function AdminDashboard({ user }) {
                 <p>Platform-wide announcements</p>
               </div>
             </header>
-            <div className="mc-card-list lg-list">
+                        <div className="mc-card-list lg-list">
               <div className="mc-list-item" style={{background: '#f8fafc'}}>
-                <input type="text" className="mc-notify-input" placeholder="Write an announcement..." />
-                <button className="mc-action-btn primary">Post</button>
+                <input 
+                  type="text" 
+                  className="mc-notify-input" 
+                  placeholder="Write an announcement..." 
+                  value={newAnnouncement}
+                  onChange={(e) => setNewAnnouncement(e.target.value)}
+                />
+                <button className="mc-action-btn primary" onClick={handlePostAnnouncement}>Post</button>
               </div>
-              <div className="mc-list-item">
-                <div className="mc-item-info">
-                  <strong>Public holiday — clinics closed 4 Feb</strong>
-                  <p>Posted 2 days ago • All users</p>
+              
+              {notifications.map(notif => (
+                <div className="mc-list-item" key={notif._id}>
+                  <div className="mc-item-info">
+                    <strong>{notif.title}</strong>
+                    <p>Posted on {new Date(notif.createdAt).toLocaleDateString('en-GB')} • {notif.target}</p>
+                  </div>
+                  <span className={`mc-badge ${notif.status === 'Expired' ? 'badge-suspended' : 'badge-active'}`}>
+                    {notif.status}
+                  </span>
                 </div>
-                <span className="mc-badge badge-active">Live</span>
-              </div>
-              <div className="mc-list-item">
-                <div className="mc-item-info">
-                  <strong>Scheduled maintenance, Sat 12 AM–2 AM</strong>
-                  <p>Posted 5 days ago • All users</p>
-                </div>
-                <span className="mc-badge badge-active">Live</span>
-              </div>
-              <div className="mc-list-item">
-                <div className="mc-item-info">
-                  <strong>New: video consultations now available</strong>
-                  <p>Posted 1 week ago • All users</p>
-                </div>
-                <span className="mc-badge badge-suspended">Expired</span>
-              </div>
+              ))}
+              {notifications.length === 0 && (
+                <div className="mc-list-item"><p>No announcements posted yet.</p></div>
+              )}
             </div>
           </div>
         );
@@ -277,18 +277,16 @@ function AdminDashboard({ user }) {
               </div>
             </header>
             <div className="mc-card-list">
-              <div className="mc-list-item" style={{display: 'flex', flexDirection: 'column', alignItems: 'flex-start'}}>
-                <div style={{marginBottom: '8px'}}><strong>K. Jayawardena</strong> <span style={{color: '#f59e0b'}}>?????</span></div>
-                <p style={{margin: 0, color: '#475569'}}>Booking was quick and the reminder notification was helpful.</p>
-              </div>
-              <div className="mc-list-item" style={{display: 'flex', flexDirection: 'column', alignItems: 'flex-start'}}>
-                <div style={{marginBottom: '8px'}}><strong>R. Dissanayake</strong> <span style={{color: '#f59e0b'}}>?????</span></div>
-                <p style={{margin: 0, color: '#475569'}}>Had to wait 20 minutes past my slot � scheduling needs tightening.</p>
-              </div>
-              <div className="mc-list-item" style={{display: 'flex', flexDirection: 'column', alignItems: 'flex-start'}}>
-                <div style={{marginBottom: '8px'}}><strong>A. Silva</strong> <span style={{color: '#f59e0b'}}>?????</span></div>
-                <p style={{margin: 0, color: '#475569'}}>Doctor profile info could show more about consultation fees upfront.</p>
-              </div>
+              {feedbacks.length > 0 ? feedbacks.map(fb => (
+                <div className="mc-list-item" key={fb._id} style={{display: 'flex', flexDirection: 'column', alignItems: 'flex-start'}}>
+                  <div style={{marginBottom: '8px'}}>
+                    <strong>{fb.patientName}</strong> <span style={{color: '#f59e0b'}}>{'★'.repeat(fb.rating)}{'☆'.repeat(5 - fb.rating)}</span>
+                  </div>
+                  <p style={{margin: 0, color: '#475569'}}>{fb.comment}</p>
+                </div>
+              )) : (
+                <div className="mc-list-item"><p>No feedback available yet.</p></div>
+              )}
             </div>
           </div>
         );
@@ -302,27 +300,17 @@ function AdminDashboard({ user }) {
                 <p>Admin and system actions</p>
               </div>
             </header>
-            <div className="mc-card-list">
-              <div className="mc-list-item">
-                <span style={{color: '#64748b', width: '100px'}}>09:14 AM</span>
-                <strong style={{flex: 1, color: '#0f172a'}}>Admin approved Dr. N. Perera's registration</strong>
-              </div>
-              <div className="mc-list-item">
-                <span style={{color: '#64748b', width: '100px'}}>08:52 AM</span>
-                <strong style={{flex: 1, color: '#0f172a'}}>Admin suspended account � R. Dissanayake</strong>
-              </div>
-              <div className="mc-list-item">
-                <span style={{color: '#64748b', width: '100px'}}>Yesterday</span>
-                <strong style={{flex: 1, color: '#0f172a'}}>System: Jenkins pipeline deployed build #142</strong>
-              </div>
-              <div className="mc-list-item">
-                <span style={{color: '#64748b', width: '100px'}}>Yesterday</span>
-                <strong style={{flex: 1, color: '#0f172a'}}>Admin posted announcement � scheduled maintenance</strong>
-              </div>
-              <div className="mc-list-item">
-                <span style={{color: '#64748b', width: '100px'}}>2 days ago</span>
-                <strong style={{flex: 1, color: '#0f172a'}}>System: K8s auto-scaled backend pods 4 ? 6</strong>
-              </div>
+                        <div className="mc-card-list">
+              {auditLogs.length > 0 ? auditLogs.map(log => (
+                <div className="mc-list-item" key={log._id}>
+                  <span style={{color: '#64748b', width: '120px'}}>
+                    {new Date(log.createdAt).toLocaleDateString('en-GB', { day: '2-digit', month: 'short' })}
+                  </span>
+                  <strong style={{flex: 1, color: '#0f172a'}}>{log.action}</strong>
+                </div>
+              )) : (
+                <div className="mc-list-item"><p>No audit logs available.</p></div>
+              )}
             </div>
           </div>
         );

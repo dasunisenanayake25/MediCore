@@ -58,6 +58,7 @@ export const updateUserStatus = async (id, status) => {
   return response.data;
 };
 
+// --- NEW ADMIN API CALLS ---
 export const getNotifications = async () => {
   const response = await API.get('/admin/notifications');
   return response.data;
@@ -77,4 +78,3 @@ export const getAuditLogs = async () => {
   const response = await API.get('/admin/audit-logs');
   return response.data;
 };
-

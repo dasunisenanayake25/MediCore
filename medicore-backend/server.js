@@ -9,6 +9,10 @@ const Notification = require('./models/Notification');
 const Feedback = require('./models/Feedback');
 const AuditLog = require('./models/AuditLog');
 
+const Notification = require('./models/Notification');
+const Feedback = require('./models/Feedback');
+const AuditLog = require('./models/AuditLog');
+
 const app = express();
 const demoDoctors = [
   { _id: 'doc-1', name: 'Dr. Aisha Silva', specialization: 'Cardiology', email: 'aisha@medicore.com' },

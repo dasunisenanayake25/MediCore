@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 
 const auditLogSchema = new mongoose.Schema({
-  action: { type: String, required: true }, // උදා: Admin approved registration
+  action: { type: String, required: true },
   details: { type: String }
 }, { timestamps: true });
 
