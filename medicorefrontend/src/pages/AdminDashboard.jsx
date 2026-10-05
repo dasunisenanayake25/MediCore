@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { getUsers, updateUserStatus, getAppointments, getHealth } from '../api';
+import { getUsers, updateUserStatus, getAppointments, getHealth, getNotifications, createNotification, getFeedback, getAuditLogs } from '../api';
 import { useNavigate } from 'react-router-dom';
 
 function AdminDashboard({ user }) {
@@ -8,6 +8,10 @@ function AdminDashboard({ user }) {
   const [usersList, setUsersList] = useState([]);
   const [appointments, setAppointments] = useState([]);
   const [sysHealth, setSysHealth] = useState(null);
+  const [notifications, setNotifications] = useState([]);
+  const [feedbacks, setFeedbacks] = useState([]);
+  const [auditLogs, setAuditLogs] = useState([]);
+  const [newAnnouncement, setNewAnnouncement] = useState("");
 
   useEffect(() => {
     fetchData();
@@ -15,26 +19,33 @@ function AdminDashboard({ user }) {
 
   const fetchData = async () => {
     try {
-      const [uData, aData, hData] = await Promise.all([
+      const [uData, aData, hData, nData, fData, lData] = await Promise.all([
         getUsers(),
         getAppointments(),
-        getHealth().catch(() => null)
+        getHealth().catch(() => null),
+        getNotifications().catch(() => []),
+        getFeedback().catch(() => []),
+        getAuditLogs().catch(() => [])
       ]);
       setUsersList(uData || []);
       setAppointments(aData || []);
       setSysHealth(hData);
+      setNotifications(nData || []);
+      setFeedbacks(fData || []);
+      setAuditLogs(lData || []);
     } catch (err) {
       console.error("Failed to fetch admin data", err);
     }
   };
 
-  const handleStatusChange = async (u, forceStatus = null) => {
+  const handlePostAnnouncement = async () => {
+    if (!newAnnouncement) return;
     try {
-      const newStatus = forceStatus || (u.status === 'suspended' ? 'active' : 'suspended');
-      await updateUserStatus(u._id, newStatus);
-      fetchData(); // refresh
+      await createNotification({ title: newAnnouncement });
+      setNewAnnouncement(""); 
+      fetchData(); 
     } catch (err) {
-      console.error("Failed to update status", err);
+      console.error("Failed to post notification", err);
     }
   };
 
