@@ -5,6 +5,9 @@ const mongoose = require('mongoose');
 const connectDB = require('./config/db');
 const Appointment = require('./models/Appointment');
 const User = require('./models/User');
+const Notification = require('./models/Notification');
+const Feedback = require('./models/Feedback');
+const AuditLog = require('./models/AuditLog');
 
 const app = express();
 const demoDoctors = [
@@ -168,6 +171,43 @@ app.patch('/api/admin/users/:id/status', async (req, res) => {
     return res.status(404).json({ message: 'User not found' });
   } catch (error) {
     res.status(500).json({ message: error.message });
+  }
+});
+
+app.post('/api/admin/notifications', async (req, res) => {
+  try {
+    const notification = await Notification.create(req.body);
+    res.status(201).json(notification);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+
+app.get('/api/admin/notifications', async (req, res) => {
+  try {
+    const notifications = await Notification.find().sort({ createdAt: -1 });
+    res.status(200).json(notifications);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+app.get('/api/admin/feedback', async (req, res) => {
+  try {
+    const feedback = await Feedback.find().sort({ createdAt: -1 });
+    res.status(200).json(feedback);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+app.get('/api/admin/audit-logs', async (req, res) => {
+  try {
+    const logs = await AuditLog.find().sort({ createdAt: -1 });
+    res.status(200).json(logs);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
   }
 });
 
