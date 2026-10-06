@@ -1,0 +1,19 @@
+version: '3.8'
+
+services:
+  backend:
+    build: ./medicore-backend
+    container_name: medicore_backend
+    ports:
+      - "5000:5000"
+    environment:
+      - MONGO_URI=mongodb://host.docker.internal:27017/medicore_db
+      - PORT=5000
+
+  frontend:
+    build: ./medicorefrontend
+    container_name: medicore_frontend
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
