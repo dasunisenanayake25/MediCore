@@ -5,9 +5,7 @@ const mongoose = require('mongoose');
 const connectDB = require('./config/db');
 const Appointment = require('./models/Appointment');
 const User = require('./models/User');
-const Notification = require('./models/Notification');
-const Feedback = require('./models/Feedback');
-const AuditLog = require('./models/AuditLog');
+
 
 const Notification = require('./models/Notification');
 const Feedback = require('./models/Feedback');
