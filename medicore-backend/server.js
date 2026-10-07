@@ -13,12 +13,34 @@ const AuditLog = require('./models/AuditLog');
 
 const app = express();
 const demoDoctors = [
-  { _id: 'doc-1', name: 'Dr. Aisha Silva', specialization: 'Cardiology', email: 'aisha@medicore.com' },
-  { _id: 'doc-2', name: 'Dr. Daniel Fernando', specialization: 'Dermatology', email: 'daniel@medicore.com' },
-  { _id: 'doc-3', name: 'Dr. Priya Nair', specialization: 'Neurology', email: 'priya@medicore.com' }
+  { _id: 'doc-1', name: 'Dr. Aisha Silva', specialization: 'Cardiology', department: 'Cardiology', email: 'aisha@medicore.com' },
+  { _id: 'doc-2', name: 'Dr. Daniel Fernando', specialization: 'Dermatology', department: 'Dermatology', email: 'daniel@medicore.com' },
+  { _id: 'doc-3', name: 'Dr. Priya Nair', specialization: 'Neurology', department: 'Neurology', email: 'priya@medicore.com' },
+  { _id: 'doc-4', name: 'Dr. Kevin Patel', specialization: 'Dental Care', department: 'Dental Care', email: 'kevin@medicore.com' },
+  { _id: 'doc-5', name: 'Dr. Sara Johnson', specialization: 'Gastroenterology', department: 'Gastroenterology', email: 'sara@medicore.com' },
+  { _id: 'doc-6', name: 'Dr. Michael Chen', specialization: 'Orthopaedics', department: 'Orthopaedics', email: 'michael@medicore.com' },
+  { _id: 'doc-7', name: 'Dr. Olivia Brown', specialization: 'Pulmonology', department: 'Pulmonology', email: 'olivia@medicore.com' },
+  { _id: 'doc-8', name: 'Dr. Ravi Kumar', specialization: 'Cardiology', department: 'Cardiology', email: 'ravi@medicore.com' },
+  { _id: 'doc-9', name: 'Dr. Emma Wilson', specialization: 'Neurology', department: 'Neurology', email: 'emma@medicore.com' },
+  { _id: 'doc-10', name: 'Dr. Grace Thompson', specialization: 'Dental Care', department: 'Dental Care', email: 'grace@medicore.com' },
+  { _id: 'doc-11', name: 'Dr. James Walker', specialization: 'Gastroenterology', department: 'Gastroenterology', email: 'james@medicore.com' },
+  { _id: 'doc-12', name: 'Dr. Sofia Martinez', specialization: 'Orthopaedics', department: 'Orthopaedics', email: 'sofia@medicore.com' },
+  { _id: 'doc-13', name: 'Dr. Lucas Green', specialization: 'Pulmonology', department: 'Pulmonology', email: 'lucas@medicore.com' }
 ];
 const demoAppointments = [];
-let demoUsers = [{ _id: 'admin-1', username: 'System Admin', email: 'admin@medicore.com', password: 'password123', role: 'admin', status: 'active' }];
+let demoUsers = [
+  { _id: 'admin-1', username: 'System Admin', email: 'admin@medicore.com', password: 'password123', role: 'admin', status: 'active' },
+  ...demoDoctors.map((doctor) => ({
+    _id: doctor._id,
+    username: doctor.name,
+    email: doctor.email,
+    password: 'doctor123',
+    role: 'doctor',
+    status: 'active',
+    specialization: doctor.specialization,
+    department: doctor.department || doctor.specialization
+  }))
+];
 
 app.use(cors({ origin: true, credentials: true }));
 app.use(express.json());

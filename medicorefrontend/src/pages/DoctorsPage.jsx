@@ -13,10 +13,18 @@ function DoctorsPage({ doctors, navigate }) {
   }));
 
   const displayDoctors = enrichedDoctors.length > 0 ? enrichedDoctors : [
-    { _id: "d1", name: "Dr. Topon Kumar", specialization: "NEUROLOGY", rating: "4.5", address: "1200 Natalie Brook Apt. 966", image: "https://i.pravatar.cc/150?img=11" },
-    { _id: "d2", name: "Dr. Albert Miles", specialization: "CARDIOLOGY", rating: "5.0", address: "1200 Natalie Brook Apt. 966", image: "https://i.pravatar.cc/150?img=12" },
-    { _id: "d3", name: "Gabriel Holt", specialization: "NEUROLOGY", rating: "4.8", address: "1200 Natalie Brook Apt. 966", image: "https://i.pravatar.cc/150?img=5" },
-    { _id: "d4", name: "Lois Saunders", specialization: "PULMONOLOGY", rating: "4.3", address: "1200 Natalie Brook Apt. 966", image: "https://i.pravatar.cc/150?img=14" }
+    { _id: "d1", name: "Dr. Topon Kumar", specialization: "NEUROLOGY", rating: "4.5", address: "1200 Natalie Brook Apt. 966", image: "https://www.magnific.com/free-photos-vectors/sri-lankan-male-doctor" },
+    { _id: "d2", name: "Dr. Albert Miles", specialization: "CARDIOLOGY", rating: "5.0", address: "1200 Natalie Brook Apt. 966", image: "https://vida.lk/doctor/" },
+    { _id: "d3", name: "Gabriel Holt", specialization: "NEUROLOGY", rating: "4.8", address: "1200 Natalie Brook Apt. 966", image: "https://www.instagram.com/p/Coysziayfec/" },
+    { _id: "d4", name: "Lois Saunders", specialization: "PULMONOLOGY", rating: "4.3", address: "1200 Natalie Brook Apt. 966", image: "https://i.pravatar.cc/150?img=14" },
+    { _id: "d5", name: "Dr. Aisha Silva", specialization: "CARDIOLOGY", rating: "4.9", address: "18 Harbor Lane", image: "https://img.magnific.com/premium-photo/confident-nepali-doctor-female-asian-standing-dental-hospital_723123-1838.jpg?semt=ais_hybrid&w=740&q=80" },
+    { _id: "d6", name: "Dr. Daniel Fernando", specialization: "DENTAL CARE", rating: "4.7", address: "45 Sunset Avenue", image: "https://i.pravatar.cc/150?img=22" },
+    { _id: "d7", name: "Dr. Priya Nair", specialization: "NEUROLOGY", rating: "4.8", address: "88 River Road", image: "https://i.pravatar.cc/150?img=23" },
+    { _id: "d8", name: "Dr. Kevin Patel", specialization: "DENTAL CARE", rating: "4.6", address: "31 Palm Grove", image: "https://i.pravatar.cc/150?img=24" },
+    { _id: "d9", name: "Dr. Sara Johnson", specialization: "GASTROENTEROLOGY", rating: "4.9", address: "9 Forest View", image: "https://i.pravatar.cc/150?img=25" },
+    { _id: "d10", name: "Dr. Michael Chen", specialization: "ORTHOPAEDICS", rating: "4.7", address: "12 Oak Terrace", image: "https://i.pravatar.cc/150?img=26" },
+    { _id: "d11", name: "Dr. Olivia Brown", specialization: "PULMONOLOGY", rating: "4.8", address: "22 Birch Street", image: "https://i.pravatar.cc/150?img=27" },
+    { _id: "d12", name: "Dr. Ravi Kumar", specialization: "CARDIOLOGY", rating: "5.0", address: "34 North Avenue", image: "https://i.pravatar.cc/150?img=28" }
   ];
 
   const filteredDoctors = displayDoctors.filter(doc => {
