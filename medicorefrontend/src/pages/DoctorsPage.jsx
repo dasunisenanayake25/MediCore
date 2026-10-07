@@ -1,38 +1,77 @@
 import React, { useState } from 'react';
-import { FaSearch, FaStar, FaCalendarAlt, FaPhoneAlt, FaStethoscope } from "react-icons/fa";
+import { FaSearch, FaCalendarAlt, FaStethoscope, FaStar } from "react-icons/fa";
+import AishaSilva from '../assets/AishaSilva.avif';
+import DanielFernando from '../assets/DanielFernando.jpeg';
+import GraceThompson from '../assets/GraceThompson.jpg';
+import JamesWalker from '../assets/JamesWalker.jpg';
+import KevinPatel from '../assets/KevinPatel.avif';
+import LucasGreen from '../assets/LucasGreen.jpeg';
+import MayaPatel from '../assets/MayaPatel.jpeg';
+import MichaelChen from '../assets/MichaelChen.jpeg';
+import OliviaBrown from '../assets/OliviaBrown.jpeg';
+import PriyaNair from '../assets/PriyaNair.avif';
+import RaviKumar from '../assets/RaviKumar.jpeg';
+import SarahLee from '../assets/SarahLee.jpeg';
+import SaraJohnson from '../assets/SaraJohnson.jpeg';
+import SofiaMartinez from '../assets/SofiaMartinez.jpeg';
+
+const doctorImageMap = {
+  'Dr. Aisha Silva': AishaSilva,
+  'Dr. Daniel Fernando': DanielFernando,
+  'Dr. Grace Thompson': GraceThompson,
+  'Dr. James Walker': JamesWalker,
+  'Dr. Kevin Patel': KevinPatel,
+  'Dr. Lucas Green': LucasGreen,
+  'Dr. Maya Patel': MayaPatel,
+  'Dr. Michael Chen': MichaelChen,
+  'Dr. Olivia Brown': OliviaBrown,
+  'Dr. Priya Nair': PriyaNair,
+  'Dr. Ravi Kumar': RaviKumar,
+  'Dr. Sarah Lee': SarahLee,
+  'Dr. Sara Johnson': SaraJohnson,
+  'Dr. Sofia Martinez': SofiaMartinez,
+};
 
 function DoctorsPage({ doctors, navigate }) {
   const [activeCategory, setActiveCategory] = useState("ALL");
-  const categories = ["ALL", "DENTAL CARE", "NEUROLOGY", "CARDIOLOGY", "GASTROENTEROLOGY", "ORTHOPAEDICS", "PULMONOLOGY"];
+  const staticCategories = ["ALL", "DENTAL CARE", "NEUROLOGY", "CARDIOLOGY", "GASTROENTEROLOGY", "ORTHOPAEDICS", "PULMONOLOGY", "DERMATOLOGY"];
+  const categories = staticCategories;
 
-  const enrichedDoctors = doctors.map((doc, idx) => ({
+  const normalizeDepartment = (value) => String(value || "General Medicine").trim();
+
+  const enrichedDoctors = (doctors || []).map((doc, idx) => ({
     ...doc,
-    rating: doc.rating || (4.5 + (idx % 5) * 0.1).toFixed(1),
+    department: doc.department || doc.specialization || "General Medicine",
+    experience: doc.experience || `${5 + (idx % 7)} years`,
+    rating: Number(doc.rating) || (4.5 + (idx % 5) * 0.1),
     address: doc.address || "1200 Natalie Brook Apt. 966",
-    image: doc.image || `https://i.pravatar.cc/150?img=${idx + 11}`
+    image: doctorImageMap[doc.name] || doc.image || `https://i.pravatar.cc/150?img=${idx + 11}`
   }));
 
-  const displayDoctors = enrichedDoctors.length > 0 ? enrichedDoctors : [
-    { _id: "d1", name: "Dr. Topon Kumar", specialization: "NEUROLOGY", rating: "4.5", address: "1200 Natalie Brook Apt. 966", image: "https://www.magnific.com/free-photos-vectors/sri-lankan-male-doctor" },
-    { _id: "d2", name: "Dr. Albert Miles", specialization: "CARDIOLOGY", rating: "5.0", address: "1200 Natalie Brook Apt. 966", image: "https://vida.lk/doctor/" },
-    { _id: "d3", name: "Gabriel Holt", specialization: "NEUROLOGY", rating: "4.8", address: "1200 Natalie Brook Apt. 966", image: "https://www.instagram.com/p/Coysziayfec/" },
-    { _id: "d4", name: "Lois Saunders", specialization: "PULMONOLOGY", rating: "4.3", address: "1200 Natalie Brook Apt. 966", image: "https://i.pravatar.cc/150?img=14" },
-    { _id: "d5", name: "Dr. Aisha Silva", specialization: "CARDIOLOGY", rating: "4.9", address: "18 Harbor Lane", image: "https://img.magnific.com/premium-photo/confident-nepali-doctor-female-asian-standing-dental-hospital_723123-1838.jpg?semt=ais_hybrid&w=740&q=80" },
-    { _id: "d6", name: "Dr. Daniel Fernando", specialization: "DENTAL CARE", rating: "4.7", address: "45 Sunset Avenue", image: "https://i.pravatar.cc/150?img=22" },
-    { _id: "d7", name: "Dr. Priya Nair", specialization: "NEUROLOGY", rating: "4.8", address: "88 River Road", image: "https://i.pravatar.cc/150?img=23" },
-    { _id: "d8", name: "Dr. Kevin Patel", specialization: "DENTAL CARE", rating: "4.6", address: "31 Palm Grove", image: "https://i.pravatar.cc/150?img=24" },
-    { _id: "d9", name: "Dr. Sara Johnson", specialization: "GASTROENTEROLOGY", rating: "4.9", address: "9 Forest View", image: "https://i.pravatar.cc/150?img=25" },
-    { _id: "d10", name: "Dr. Michael Chen", specialization: "ORTHOPAEDICS", rating: "4.7", address: "12 Oak Terrace", image: "https://i.pravatar.cc/150?img=26" },
-    { _id: "d11", name: "Dr. Olivia Brown", specialization: "PULMONOLOGY", rating: "4.8", address: "22 Birch Street", image: "https://i.pravatar.cc/150?img=27" },
-    { _id: "d12", name: "Dr. Ravi Kumar", specialization: "CARDIOLOGY", rating: "5.0", address: "34 North Avenue", image: "https://i.pravatar.cc/150?img=28" }
+  const fallbackDoctors = [
+    { _id: "d1", name: "Dr. Aisha Silva", specialization: "Cardiology", department: "Cardiology", experience: "12 years", rating: 4.9, address: "No. 15, Colombo 03", image: AishaSilva },
+    { _id: "d2", name: "Dr. Ravi Kumar", specialization: "Cardiology", department: "Cardiology", experience: "14 years", rating: 5.0, address: "No. 88, Jaffna", image: RaviKumar },
+    { _id: "d3", name: "Dr. Daniel Fernando", specialization: "Dermatology", department: "Dermatology", experience: "10 years", rating: 4.8, address: "No. 28, Kandy Road", image: DanielFernando },
+    { _id: "d4", name: "Dr. Sarah Lee", specialization: "Dermatology", department: "Dermatology", experience: "8 years", rating: 4.6, address: "No. 33, Dehiwala", image: SarahLee },
+    { _id: "d5", name: "Dr. Priya Nair", specialization: "Neurology", department: "Neurology", experience: "11 years", rating: 4.9, address: "No. 42, Galle Face", image: PriyaNair },
+    { _id: "d6", name: "Dr. James Walker", specialization: "Neurology", department: "Neurology", experience: "11 years", rating: 4.8, address: "No. 45, Kadawatha", image: JamesWalker },
+    { _id: "d7", name: "Dr. Kevin Patel", specialization: "Dental Care", department: "Dental Care", experience: "8 years", rating: 4.7, address: "No. 09, Mount Lavinia", image: KevinPatel },
+    { _id: "d8", name: "Dr. Grace Thompson", specialization: "Dental Care", department: "Dental Care", experience: "7 years", rating: 4.6, address: "No. 31, Malabe", image: GraceThompson },
+    { _id: "d9", name: "Dr. Sara Johnson", specialization: "Gastroenterology", department: "Gastroenterology", experience: "9 years", rating: 4.8, address: "No. 17, Negombo", image: SaraJohnson },
+    { _id: "d10", name: "Dr. Michael Chen", specialization: "Gastroenterology", department: "Gastroenterology", experience: "13 years", rating: 4.9, address: "No. 11, Bambalapitiya", image: MichaelChen },
+    { _id: "d11", name: "Dr. Sofia Martinez", specialization: "Orthopaedics", department: "Orthopaedics", experience: "10 years", rating: 4.9, address: "No. 58, Kurunegala", image: SofiaMartinez },
+    { _id: "d12", name: "Dr. Olivia Brown", specialization: "Orthopaedics", department: "Orthopaedics", experience: "10 years", rating: 4.8, address: "No. 67, Nugegoda", image: OliviaBrown },
+    { _id: "d13", name: "Dr. Lucas Green", specialization: "Pulmonology", department: "Pulmonology", experience: "12 years", rating: 4.8, address: "No. 76, Wanathamulla", image: LucasGreen },
+    { _id: "d14", name: "Dr. Maya Patel", specialization: "Pulmonology", department: "Pulmonology", experience: "9 years", rating: 4.7, address: "No. 20, Kalubowila", image: MayaPatel }
   ];
+
+  const displayDoctors = enrichedDoctors.length > 0 ? enrichedDoctors : fallbackDoctors;
 
   const filteredDoctors = displayDoctors.filter(doc => {
     if (activeCategory === "ALL") return true;
-    const spec = doc.specialization.toUpperCase();
-    if (activeCategory === "NEUROLOGY" && spec.includes("NEUROLOG")) return true;
-    if (activeCategory === "CARDIOLOGY" && spec.includes("CARDIOLOG")) return true;
-    return spec.includes(activeCategory);
+    const department = normalizeDepartment(doc.department || doc.specialization).toUpperCase();
+    const category = activeCategory.toUpperCase();
+    return department.includes(category);
   });
 
   return (
@@ -54,8 +93,8 @@ function DoctorsPage({ doctors, navigate }) {
       <div className="doc-filter-bar">
         <div className="doc-tabs">
           {categories.map(cat => (
-            <span 
-              key={cat} 
+            <span
+              key={cat}
               className={`doc-tab ${activeCategory === cat ? "active" : ""}`}
               onClick={() => setActiveCategory(cat)}
             >
@@ -71,14 +110,21 @@ function DoctorsPage({ doctors, navigate }) {
             <div className="doc-avatar">
               <img src={doc.image} alt={doc.name} />
             </div>
-            
+
+            <div className="doc-rating-row">
+              <FaStar style={{ color: "#f59e0b", fontSize: "13px" }} />
+              <span>{Number(doc.rating || 4.8).toFixed(1)}</span>
+            </div>
+
             <h3 className="doc-name">{doc.name}</h3>
             <p className="doc-address">{doc.address}</p>
-            
+
             <div className="doc-spec-pill">
-              {doc.specialization.toUpperCase()}
+              {normalizeDepartment(doc.department || doc.specialization).toUpperCase()}
             </div>
-            
+
+            <p className="doc-meta">{doc.experience || "8 years"} experience</p>
+
             <div className="doc-actions">
               <button className="doc-action-btn">
                 <FaCalendarAlt className="action-ic" /> Availability

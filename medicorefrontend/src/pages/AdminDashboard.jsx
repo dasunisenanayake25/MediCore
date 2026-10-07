@@ -54,6 +54,15 @@ function AdminDashboard({ user }) {
     navigate("/");
   };
 
+  const handleStatusChange = async (user, nextStatus) => {
+    try {
+      const updatedUser = await updateUserStatus(user._id, nextStatus);
+      setUsersList(prev => prev.map(u => (u._id === user._id ? { ...u, ...updatedUser, status: nextStatus } : u)));
+    } catch (err) {
+      console.error("Failed to update user status", err);
+    }
+  };
+
   const totalPatients = usersList.filter(u => u.role !== 'doctor' && u.role !== 'admin').length;
   const totalDoctors = usersList.filter(u => u.role === 'doctor').length;
   const activePatients = usersList.filter(u => u.role !== 'doctor' && u.status === 'active').length;
