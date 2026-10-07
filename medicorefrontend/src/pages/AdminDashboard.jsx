@@ -1,17 +1,19 @@
 import React, { useState, useEffect } from 'react';
-import { getUsers, updateUserStatus, getAppointments, getHealth, getNotifications, createNotification, getFeedback, getAuditLogs } from '../api';
+import { getUsers, updateUserStatus, getAppointments, getHealth, getNotifications, createNotification, getFeedback, getAuditLogs, getDoctors, updateDoctorAvailability, updateDoctorProfile, updateAppointment } from '../api';
 import { useNavigate } from 'react-router-dom';
 
 function AdminDashboard({ user }) {
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState('Dashboard');
   const [usersList, setUsersList] = useState([]);
+  const [doctorsList, setDoctorsList] = useState([]);
   const [appointments, setAppointments] = useState([]);
   const [sysHealth, setSysHealth] = useState(null);
   const [notifications, setNotifications] = useState([]);
   const [feedbacks, setFeedbacks] = useState([]);
   const [auditLogs, setAuditLogs] = useState([]);
   const [newAnnouncement, setNewAnnouncement] = useState("");
+  const [availabilityDrafts, setAvailabilityDrafts] = useState({});
 
   useEffect(() => {
     fetchData();
@@ -19,8 +21,9 @@ function AdminDashboard({ user }) {
 
   const fetchData = async () => {
     try {
-      const [uData, aData, hData, nData, fData, lData] = await Promise.all([
+      const [uData, dData, aData, hData, nData, fData, lData] = await Promise.all([
         getUsers(),
+        getDoctors(),
         getAppointments(),
         getHealth().catch(() => null),
         getNotifications().catch(() => []),
@@ -28,11 +31,20 @@ function AdminDashboard({ user }) {
         getAuditLogs().catch(() => [])
       ]);
       setUsersList(uData || []);
+      setDoctorsList(dData || []);
       setAppointments(aData || []);
       setSysHealth(hData);
       setNotifications(nData || []);
       setFeedbacks(fData || []);
       setAuditLogs(lData || []);
+
+      const nextDrafts = {};
+      (dData || []).forEach((doctor) => {
+        nextDrafts[doctor._id] = Array.isArray(doctor.availability)
+          ? doctor.availability.map((slot) => `${slot.day}: ${slot.slots.join(', ')}`).join('\n')
+          : 'No schedule set yet.';
+      });
+      setAvailabilityDrafts(nextDrafts);
     } catch (err) {
       console.error("Failed to fetch admin data", err);
     }
@@ -60,6 +72,54 @@ function AdminDashboard({ user }) {
       setUsersList(prev => prev.map(u => (u._id === user._id ? { ...u, ...updatedUser, status: nextStatus } : u)));
     } catch (err) {
       console.error("Failed to update user status", err);
+    }
+  };
+
+  const parseAvailabilityText = (value) => {
+    if (!value || !value.trim()) return [];
+    return value
+      .split(/\n|;/)
+      .map((line) => line.trim())
+      .filter(Boolean)
+      .map((line) => {
+        const [day, ...rest] = line.split(':');
+        const slots = (rest.join(':') || '')
+          .split(',')
+          .map((slot) => slot.trim())
+          .filter(Boolean);
+
+        return { day: day.trim(), slots };
+      })
+      .filter((item) => item.day && item.slots.length > 0);
+  };
+
+  const handleAvailabilityUpdate = async (doctorId, value) => {
+    try {
+      const availability = parseAvailabilityText(value);
+      const updatedDoctor = await updateDoctorAvailability(doctorId, availability);
+      setDoctorsList(prev => prev.map(doc => (doc._id === doctorId ? { ...doc, ...updatedDoctor, availability: updatedDoctor.availability || availability } : doc)));
+      setAvailabilityDrafts(prev => ({ ...prev, [doctorId]: value }));
+    } catch (err) {
+      console.error("Failed to update doctor availability", err);
+    }
+  };
+
+  const handleDoctorFieldUpdate = async (doctorId, field, value) => {
+    try {
+      const doctor = doctorsList.find((item) => item._id === doctorId);
+      const updatedDoctor = await updateDoctorProfile(doctorId, { ...doctor, [field]: value });
+      setDoctorsList(prev => prev.map(doc => (doc._id === doctorId ? { ...doc, ...updatedDoctor, [field]: value } : doc)));
+    } catch (err) {
+      console.error("Failed to update doctor profile", err);
+    }
+  };
+
+  const handleAppointmentEdit = async (appointmentId, updates) => {
+    try {
+      const updatedAppointment = await updateAppointment(appointmentId, updates);
+      setAppointments(prev => prev.map(item => (item._id === appointmentId ? { ...item, ...updatedAppointment } : item)));
+    } catch (err) {
+      console.error("Failed to update appointment", err);
     }
   };
 
@@ -147,11 +207,17 @@ function AdminDashboard({ user }) {
                   </div>
                   <div className="mc-btn-group">
                     {app.status === 'Cancelled' ? (
-                      <button className="mc-action-btn outline">View</button>
+                      <button className="mc-action-btn outline" onClick={() => handleAppointmentEdit(app._id, { status: 'Pending' })}>Reopen</button>
                     ) : (
                       <>
-                        <button className="mc-action-btn outline">Reschedule</button>
-                        <button className="mc-action-btn outline">Cancel</button>
+                        <button className="mc-action-btn outline" onClick={() => {
+                          const newDate = window.prompt('New appointment date (YYYY-MM-DD)', app.date || '');
+                          if (!newDate) return;
+                          const newTime = window.prompt('New appointment time (HH:MM)', app.time || '09:00');
+                          if (!newTime) return;
+                          handleAppointmentEdit(app._id, { date: newDate, time: newTime, status: 'Rescheduled' });
+                        }}>Reschedule</button>
+                        <button className="mc-action-btn outline" onClick={() => handleAppointmentEdit(app._id, { status: 'Cancelled' })}>Cancel</button>
                       </>
                     )}
                   </div>
@@ -164,7 +230,7 @@ function AdminDashboard({ user }) {
         );
 
       case 'Doctors & Departments':
-        const docs = usersList.filter(u => u.role === 'doctor');
+        const docs = doctorsList.length > 0 ? doctorsList : usersList.filter(u => u.role === 'doctor');
         return (
           <div className="mc-tab-content">
             <header className="mc-admin-header">
@@ -179,9 +245,43 @@ function AdminDashboard({ user }) {
             <div className="mc-doc-grid">
               {docs.map(doc => (
                 <div className="mc-doc-card" key={doc._id}>
-                  <strong>{doc.username}</strong>
-                  <span>{doc.specialization || 'General Medicine'} • 5 yrs experience</span>
-                  <p>Mon-Fri • 9:00-1:00</p>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                    <input
+                      value={doc.name || doc.username || ''}
+                      onChange={(e) => handleDoctorFieldUpdate(doc._id, 'name', e.target.value)}
+                      style={{ border: '1px solid #dbeafe', borderRadius: '8px', padding: '8px 10px', fontWeight: 700 }}
+                    />
+                    <input
+                      value={doc.specialization || doc.department || 'General Medicine'}
+                      onChange={(e) => handleDoctorFieldUpdate(doc._id, 'specialization', e.target.value)}
+                      style={{ border: '1px solid #dbeafe', borderRadius: '8px', padding: '8px 10px' }}
+                    />
+                    <input
+                      value={doc.department || doc.specialization || 'General Medicine'}
+                      onChange={(e) => handleDoctorFieldUpdate(doc._id, 'department', e.target.value)}
+                      style={{ border: '1px solid #dbeafe', borderRadius: '8px', padding: '8px 10px' }}
+                    />
+                    <input
+                      value={doc.experience || '5 yrs experience'}
+                      onChange={(e) => handleDoctorFieldUpdate(doc._id, 'experience', e.target.value)}
+                      style={{ border: '1px solid #dbeafe', borderRadius: '8px', padding: '8px 10px' }}
+                    />
+                    <input
+                      value={doc.address || ''}
+                      onChange={(e) => handleDoctorFieldUpdate(doc._id, 'address', e.target.value)}
+                      style={{ border: '1px solid #dbeafe', borderRadius: '8px', padding: '8px 10px' }}
+                    />
+                  </div>
+                  <div style={{ marginTop: '12px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                    <label style={{ fontSize: '12px', color: '#64748b', fontWeight: 600 }}>Availability</label>
+                    <textarea
+                      rows={4}
+                      value={availabilityDrafts[doc._id] ?? (Array.isArray(doc.availability) ? doc.availability.map((slot) => `${slot.day}: ${slot.slots.join(', ')}`).join('\n') : 'No schedule set yet.')}
+                      onChange={(e) => setAvailabilityDrafts(prev => ({ ...prev, [doc._id]: e.target.value }))}
+                      style={{ width: '100%', borderRadius: '10px', border: '1px solid #dbeafe', padding: '8px 10px', fontFamily: 'inherit' }}
+                    />
+                    <button className="mc-action-btn primary" onClick={() => handleAvailabilityUpdate(doc._id, availabilityDrafts[doc._id] ?? '')}>Save schedule</button>
+                  </div>
                 </div>
               ))}
               {docs.length === 0 && <p>No doctors registered yet.</p>}

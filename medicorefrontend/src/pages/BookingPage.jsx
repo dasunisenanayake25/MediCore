@@ -1,6 +1,8 @@
 import React from 'react';
 
 function BookingPage({ doctors, form, error, handleChange, handleSubmit, setError, navigate }) {
+  const selectedDoctor = doctors.find((doctor) => doctor._id === form.doctorId);
+
   return (
     <div className="app">
       <header className="header">
@@ -85,6 +87,23 @@ function BookingPage({ doctors, form, error, handleChange, handleSubmit, setErro
                 <label>Appointment Time</label>
                 <input type="time" name="time" value={form.time} onChange={handleChange} required />
               </div>
+
+              {selectedDoctor && (
+                <div className="form-group" style={{ gridColumn: '1 / -1' }}>
+                  <label>Doctor availability</label>
+                  <div style={{ background: '#f8fafc', border: '1px solid #dbeafe', borderRadius: '12px', padding: '12px 14px', display: 'flex', flexDirection: 'column', gap: '8px', color: '#334155' }}>
+                    {selectedDoctor.availability && selectedDoctor.availability.length > 0 ? (
+                      selectedDoctor.availability.map((slot) => (
+                        <div key={`${selectedDoctor._id}-${slot.day}`}>
+                          <strong>{slot.day}:</strong> {slot.slots.join(' • ')}
+                        </div>
+                      ))
+                    ) : (
+                      <span>No schedule has been set for this doctor yet.</span>
+                    )}
+                  </div>
+                </div>
+              )}
             </div>
 
             <div className="form-actions">

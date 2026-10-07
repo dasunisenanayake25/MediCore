@@ -58,6 +58,21 @@ export const updateUserStatus = async (id, status) => {
   return response.data;
 };
 
+export const updateDoctorAvailability = async (id, availability) => {
+  const response = await API.patch(`/admin/doctors/${id}/availability`, { availability });
+  return response.data;
+};
+
+export const updateDoctorProfile = async (id, updates) => {
+  const response = await API.patch(`/admin/doctors/${id}`, updates);
+  return response.data;
+};
+
+export const updateAppointment = async (id, updates) => {
+  const response = await API.patch(`/admin/appointments/${id}`, updates);
+  return response.data;
+};
+
 // --- NEW ADMIN API CALLS ---
 export const getNotifications = async () => {
   const response = await API.get('/admin/notifications');

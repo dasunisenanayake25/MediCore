@@ -34,8 +34,14 @@ const doctorImageMap = {
 
 function DoctorsPage({ doctors, navigate }) {
   const [activeCategory, setActiveCategory] = useState("ALL");
+  const [expandedDoctorId, setExpandedDoctorId] = useState(null);
   const staticCategories = ["ALL", "DENTAL CARE", "NEUROLOGY", "CARDIOLOGY", "GASTROENTEROLOGY", "ORTHOPAEDICS", "PULMONOLOGY", "DERMATOLOGY"];
   const categories = staticCategories;
+
+  const getAvailabilityText = (availability) => {
+    if (!Array.isArray(availability) || availability.length === 0) return "No schedule set yet.";
+    return availability.map(slot => `${slot.day}: ${slot.slots.join(', ')}`).join(' • ');
+  };
 
   const normalizeDepartment = (value) => String(value || "General Medicine").trim();
 
@@ -126,10 +132,27 @@ function DoctorsPage({ doctors, navigate }) {
             <p className="doc-meta">{doc.experience || "8 years"} experience</p>
 
             <div className="doc-actions">
-              <button className="doc-action-btn">
+              <button className="doc-action-btn" onClick={() => setExpandedDoctorId(expandedDoctorId === doc._id ? null : doc._id)}>
                 <FaCalendarAlt className="action-ic" /> Availability
               </button>
             </div>
+
+            {expandedDoctorId === doc._id && (
+              <div className="doc-availability-panel" style={{ marginTop: '12px', padding: '12px', borderRadius: '12px', background: '#f8fafc', border: '1px solid #dbeafe' }}>
+                <strong style={{ display: 'block', marginBottom: '8px', color: '#1e3a8a' }}>Doctor availability</strong>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', color: '#334155', fontSize: '13px' }}>
+                  {Array.isArray(doc.availability) && doc.availability.length > 0 ? (
+                    doc.availability.map((slot) => (
+                      <div key={`${doc._id}-${slot.day}`}>
+                        <span style={{ fontWeight: 700 }}>{slot.day}:</span> {slot.slots.join(' • ')}
+                      </div>
+                    ))
+                  ) : (
+                    <span>No schedule set yet.</span>
+                  )}
+                </div>
+              </div>
+            )}
           </div>
         ))}
       </div>
