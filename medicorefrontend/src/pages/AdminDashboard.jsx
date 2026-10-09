@@ -2,6 +2,38 @@ import React, { useState, useEffect } from 'react';
 import { getUsers, updateUserStatus, getAppointments, getHealth, getNotifications, createNotification, getFeedback, getAuditLogs, getDoctors, updateDoctorAvailability, updateDoctorProfile, updateAppointment } from '../api';
 import { useNavigate } from 'react-router-dom';
 
+import AishaSilva from '../assets/AishaSilva.avif';
+import DanielFernando from '../assets/DanielFernando.jpeg';
+import GraceThompson from '../assets/GraceThompson.jpg';
+import JamesWalker from '../assets/JamesWalker.jpg';
+import KevinPatel from '../assets/KevinPatel.avif';
+import LucasGreen from '../assets/LucasGreen.jpeg';
+import MayaPatel from '../assets/MayaPatel.jpeg';
+import MichaelChen from '../assets/MichaelChen.jpeg';
+import OliviaBrown from '../assets/OliviaBrown.jpeg';
+import PriyaNair from '../assets/PriyaNair.avif';
+import RaviKumar from '../assets/RaviKumar.jpeg';
+import SarahLee from '../assets/SarahLee.jpeg';
+import SaraJohnson from '../assets/SaraJohnson.jpeg';
+import SofiaMartinez from '../assets/SofiaMartinez.jpeg';
+
+const doctorImageMap = {
+  'Dr. Aisha Silva': AishaSilva,
+  'Dr. Daniel Fernando': DanielFernando,
+  'Dr. Grace Thompson': GraceThompson,
+  'Dr. James Walker': JamesWalker,
+  'Dr. Kevin Patel': KevinPatel,
+  'Dr. Lucas Green': LucasGreen,
+  'Dr. Maya Patel': MayaPatel,
+  'Dr. Michael Chen': MichaelChen,
+  'Dr. Olivia Brown': OliviaBrown,
+  'Dr. Priya Nair': PriyaNair,
+  'Dr. Ravi Kumar': RaviKumar,
+  'Dr. Sarah Lee': SarahLee,
+  'Dr. Sara Johnson': SaraJohnson,
+  'Dr. Sofia Martinez': SofiaMartinez,
+};
+
 function AdminDashboard({ user }) {
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState('Dashboard');
@@ -14,6 +46,9 @@ function AdminDashboard({ user }) {
   const [auditLogs, setAuditLogs] = useState([]);
   const [newAnnouncement, setNewAnnouncement] = useState("");
   const [availabilityDrafts, setAvailabilityDrafts] = useState({});
+  const [roleFilter, setRoleFilter] = useState('all');
+  const [statusFilter, setStatusFilter] = useState('all');
+  const [selectedUserId, setSelectedUserId] = useState(null);
 
   useEffect(() => {
     fetchData();
@@ -127,6 +162,14 @@ function AdminDashboard({ user }) {
   const totalDoctors = usersList.filter(u => u.role === 'doctor').length;
   const activePatients = usersList.filter(u => u.role !== 'doctor' && u.status === 'active').length;
 
+  const filteredUsers = usersList.filter(user => {
+    const roleMatch = roleFilter === 'all' || (user.role || 'patient') === roleFilter;
+    const statusMatch = statusFilter === 'all' || (user.status || 'active') === statusFilter;
+    return roleMatch && statusMatch;
+  });
+
+  const selectedUser = usersList.find((user) => user._id === selectedUserId) || null;
+
   const today = new Date().toLocaleDateString('en-US', { weekday: 'long', day: 'numeric', month: 'long' });
 
   const renderContent = () => {
@@ -140,46 +183,97 @@ function AdminDashboard({ user }) {
                 <p>Manage patient and doctor accounts</p>
               </div>
               <div className="mc-filters">
-                <select><option>All roles</option><option>Doctors</option><option>Patients</option></select>
-                <select><option>All statuses</option><option>Active</option><option>Suspended</option></select>
+                <select value={roleFilter} onChange={(e) => setRoleFilter(e.target.value)}>
+                  <option value="all">All roles</option>
+                  <option value="doctor">Doctors</option>
+                  <option value="patient">Patients</option>
+                </select>
+                <select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)}>
+                  <option value="all">All statuses</option>
+                  <option value="active">Active</option>
+                  <option value="suspended">Suspended</option>
+                  <option value="pending">Pending</option>
+                </select>
               </div>
             </header>
-            <div className="mc-table-wrapper">
-              <table className="mc-table">
-                <thead>
-                  <tr>
-                    <th>Name</th><th>Role</th><th>Joined</th><th>Status</th><th>Actions</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {usersList.map(u => (
-                    <tr key={u._id}>
-                      <td><strong>{u.username}</strong></td>
-                      <td style={{textTransform: 'capitalize'}}>{u.role || 'Patient'}</td>
-                      <td>{new Date(u.createdAt || Date.now()).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })}</td>
-                      <td>
-                        <span className={`mc-badge ${u.status === 'suspended' ? 'badge-suspended' : u.status === 'pending' ? 'badge-warning' : 'badge-active'}`}>
-                          {u.status || 'Active'}
-                        </span>
-                      </td>
-                      <td>
-                        <div className="mc-btn-group">
-                          {u.status === 'pending' ? (
-                            <>
-                              <button className="mc-action-btn primary" onClick={() => handleStatusChange(u, 'active')}>Approve</button>
-                              <button className="mc-action-btn outline" onClick={() => handleStatusChange(u, 'suspended')}>Reject</button>
-                            </>
-                          ) : u.status === 'suspended' ? (
-                            <button className="mc-action-btn primary" onClick={() => handleStatusChange(u, 'active')}>Reactivate</button>
-                          ) : (
-                            <button className="mc-action-btn outline" onClick={() => handleStatusChange(u, 'suspended')}>Suspend</button>
-                          )}
-                        </div>
-                      </td>
+
+            <div style={{ display: 'grid', gridTemplateColumns: '1.6fr 0.9fr', gap: '20px', alignItems: 'start' }}>
+              <div className="mc-table-wrapper">
+                <table className="mc-table">
+                  <thead>
+                    <tr>
+                      <th>Name</th><th>Role</th><th>Joined</th><th>Status</th><th>Actions</th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
+                  </thead>
+                  <tbody>
+                    {filteredUsers.map(u => (
+                      <tr key={u._id} onClick={() => setSelectedUserId(u._id)} style={{ cursor: 'pointer' }}>
+                        <td><strong>{u.username}</strong></td>
+                        <td style={{textTransform: 'capitalize'}}>{u.role || 'Patient'}</td>
+                        <td>{new Date(u.createdAt || Date.now()).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })}</td>
+                        <td>
+                          <span className={`mc-badge ${u.status === 'suspended' ? 'badge-suspended' : u.status === 'pending' ? 'badge-warning' : 'badge-active'}`}>
+                            {u.status || 'Active'}
+                          </span>
+                        </td>
+                        <td>
+                          <div className="mc-btn-group" onClick={(e) => e.stopPropagation()}>
+                            {u.status === 'pending' ? (
+                              <>
+                                <button className="mc-action-btn primary" onClick={() => handleStatusChange(u, 'active')}>Approve</button>
+                                <button className="mc-action-btn outline" onClick={() => handleStatusChange(u, 'suspended')}>Reject</button>
+                              </>
+                            ) : u.status === 'suspended' ? (
+                              <button className="mc-action-btn primary" onClick={() => handleStatusChange(u, 'active')}>Reactivate</button>
+                            ) : (
+                              <button className="mc-action-btn outline" onClick={() => handleStatusChange(u, 'suspended')}>Suspend</button>
+                            )}
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+
+              {selectedUser && (
+                <div className="mc-doc-card" style={{ padding: '20px' }}>
+                  <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '16px' }}>
+                    {selectedUser.role === 'doctor' ? (
+                      <img
+                        src={doctorImageMap[selectedUser.username] || doctorImageMap[selectedUser.name] || 'https://i.pravatar.cc/150'}
+                        alt={selectedUser.username}
+                        style={{ width: '110px', height: '110px', borderRadius: '50%', objectFit: 'cover', border: '3px solid #dbeafe' }}
+                      />
+                    ) : (
+                      <div style={{ width: '110px', height: '110px', borderRadius: '50%', background: '#dbeafe', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '38px', fontWeight: 700, color: '#1d4ed8' }}>
+                        {selectedUser.username?.charAt(0)?.toUpperCase() || 'P'}
+                      </div>
+                    )}
+                  </div>
+
+                  <h3 style={{ margin: '0 0 8px' }}>{selectedUser.username}</h3>
+                  <p style={{ margin: '0 0 16px', textTransform: 'capitalize', color: '#64748b' }}>{selectedUser.role || 'patient'}</p>
+
+                  {selectedUser.role === 'doctor' ? (
+                    <div style={{ display: 'grid', gap: '8px', fontSize: '14px', color: '#334155' }}>
+                      <div><strong>Email:</strong> {selectedUser.email}</div>
+                      <div><strong>Specialization:</strong> {selectedUser.specialization || 'General Medicine'}</div>
+                      <div><strong>Department:</strong> {selectedUser.department || selectedUser.specialization || 'General Medicine'}</div>
+                      <div><strong>Experience:</strong> {selectedUser.experience || '5 years'}</div>
+                      <div><strong>Address:</strong> {selectedUser.address || 'Not provided'}</div>
+                      <div><strong>Status:</strong> {selectedUser.status || 'active'}</div>
+                    </div>
+                  ) : (
+                    <div style={{ display: 'grid', gap: '8px', fontSize: '14px', color: '#334155' }}>
+                      <div><strong>Email:</strong> {selectedUser.email}</div>
+                      <div><strong>Role:</strong> Patient</div>
+                      <div><strong>Status:</strong> {selectedUser.status || 'active'}</div>
+                      <div><strong>Account:</strong> {selectedUser.createdAt ? new Date(selectedUser.createdAt).toLocaleDateString() : 'Recent user'}</div>
+                    </div>
+                  )}
+                </div>
+              )}
             </div>
           </div>
         );
@@ -245,6 +339,13 @@ function AdminDashboard({ user }) {
             <div className="mc-doc-grid">
               {docs.map(doc => (
                 <div className="mc-doc-card" key={doc._id}>
+                  <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '14px' }}>
+                    <img
+                      src={doctorImageMap[doc.name || doc.username] || doc.image || 'https://i.pravatar.cc/150'}
+                      alt={doc.name || doc.username}
+                      style={{ width: '92px', height: '92px', borderRadius: '50%', objectFit: 'cover', border: '3px solid #dbeafe' }}
+                    />
+                  </div>
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                     <input
                       value={doc.name || doc.username || ''}
