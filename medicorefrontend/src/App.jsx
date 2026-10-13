@@ -84,6 +84,40 @@ function AppRoutes() {
 
     try {
       const selectedDoctor = doctors.find((doctor) => doctor._id === form.doctorId);
+      const appointmentDate = form.date;
+      const requestedTime = form.time;
+
+      if (!selectedDoctor || !appointmentDate || !requestedTime) {
+        setError("Please choose a doctor, date, and appointment time.");
+        return;
+      }
+
+      const selectedDay = new Date(`${appointmentDate}T00:00:00`).toLocaleDateString('en-US', { weekday: 'short' });
+      const allowedSlots = Array.isArray(selectedDoctor.availability)
+        ? selectedDoctor.availability.find((slot) => slot.day === selectedDay)?.slots || []
+        : [];
+
+      const normalizedTime = (() => {
+        const [hoursString, minutesString] = requestedTime.split(':');
+        const hours = Number(hoursString);
+        const minutes = Number(minutesString);
+
+        if (Number.isNaN(hours) || Number.isNaN(minutes)) return null;
+
+        const period = hours >= 12 ? 'PM' : 'AM';
+        const adjustedHour = hours % 12 || 12;
+        return `${adjustedHour}:${String(minutes).padStart(2, '0')} ${period}`;
+      })();
+
+      if (!allowedSlots.length || !allowedSlots.includes(normalizedTime)) {
+        setError(
+          allowedSlots.length
+            ? `Doctor is not available at this time. Available slots: ${allowedSlots.join(', ')}`
+            : 'Doctor is not available at this time.'
+        );
+        return;
+      }
+
       const appointmentData = {
         ...form,
         doctorId: form.doctorId,

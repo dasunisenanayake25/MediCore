@@ -1,6 +1,22 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
+import { getPublicNotifications } from '../api';
 
 function DashboardPage({ navigate, user, setUser }) {
+  const [notifications, setNotifications] = useState([]);
+
+  useEffect(() => {
+    const fetchNotifications = async () => {
+      try {
+        const data = await getPublicNotifications();
+        setNotifications(data || []);
+      } catch (err) {
+        console.error('Failed to fetch notifications', err);
+      }
+    };
+
+    fetchNotifications();
+  }, []);
+
   return (
     <div className="app">
       <header className="header">
@@ -43,6 +59,24 @@ function DashboardPage({ navigate, user, setUser }) {
             <h3>Who it is for</h3>
             <p>Ideal for clinics, hospitals, and patients who want a smooth digital appointment booking experience without confusion.</p>
           </div>
+        </div>
+
+        <div className="dash-info-card" style={{ marginTop: '24px' }}>
+          <h3>Latest announcements</h3>
+          {notifications.length === 0 ? (
+            <p>No announcements have been posted yet.</p>
+          ) : (
+            <ul style={{ margin: 0, paddingLeft: '18px', display: 'grid', gap: '10px' }}>
+              {notifications.map((item) => (
+                <li key={item._id}>
+                  <strong>{item.title}</strong>
+                  <div style={{ color: '#475569', fontSize: '0.9rem' }}>
+                    {new Date(item.createdAt).toLocaleDateString('en-GB')} • {item.target || 'All users'}
+                  </div>
+                </li>
+              ))}
+            </ul>
+          )}
         </div>
       </main>
     </div>

@@ -12,6 +12,38 @@ const Feedback = require('./models/Feedback');
 const AuditLog = require('./models/AuditLog');
 
 const app = express();
+const hasMongoConnection = () => Boolean(process.env.MONGO_URI) && mongoose.connection.readyState === 1;
+
+const normalizeTo12HourTime = (timeValue) => {
+  if (!timeValue || typeof timeValue !== 'string') return null;
+
+  const [hoursString, minutesString] = timeValue.split(':');
+  if (hoursString === undefined || minutesString === undefined) return null;
+
+  const hours = Number(hoursString);
+  const minutes = Number(minutesString);
+
+  if (Number.isNaN(hours) || Number.isNaN(minutes) || hours < 0 || hours > 23 || minutes < 0 || minutes > 59) {
+    return null;
+  }
+
+  const period = hours >= 12 ? 'PM' : 'AM';
+  const adjustedHour = hours % 12 || 12;
+  return `${adjustedHour}:${String(minutes).padStart(2, '0')} ${period}`;
+};
+
+const getDoctorAvailabilityForDate = (doctor, appointmentDate) => {
+  if (!doctor || !doctor.availability || !appointmentDate) return [];
+
+  const date = new Date(`${appointmentDate}T00:00:00`);
+  if (Number.isNaN(date.getTime())) return [];
+
+  const weekday = date.toLocaleDateString('en-US', { weekday: 'short' });
+  const availabilityEntry = doctor.availability.find((slot) => slot.day === weekday);
+
+  return Array.isArray(availabilityEntry?.slots) ? availabilityEntry.slots : [];
+};
+
 const demoDoctors = [
   {
     _id: 'doc-1',
@@ -239,6 +271,15 @@ const demoDoctors = [
   }
 ];
 const demoAppointments = [];
+let demoNotifications = [
+  {
+    _id: 'notice-1',
+    title: 'Welcome to MediCore! Please keep your profile details updated for a smoother visit.',
+    target: 'All users',
+    status: 'Live',
+    createdAt: new Date().toISOString()
+  }
+];
 let demoUsers = [
   { _id: 'admin-1', username: 'System Admin', email: 'admin@medicore.com', password: 'password123', role: 'admin', status: 'active' },
   ...demoDoctors.map((doctor) => ({
@@ -298,6 +339,10 @@ app.get('/health', (req, res) => {
   res.status(200).json({ status: 'UP', service: 'MediCore Backend' });
 });
 
+app.get('/api/health', (req, res) => {
+  res.status(200).json({ status: 'UP', service: 'MediCore Backend' });
+});
+
 app.get('/api/doctors', (req, res) => {
   res.status(200).json(demoDoctors);
 });
@@ -353,6 +398,21 @@ app.post('/api/appointments', async (req, res) => {
     const selectedDoctor = demoDoctors.find(
       (doctor) => String(doctor._id) === String(req.body.doctorId)
     );
+
+    if (!selectedDoctor) {
+      return res.status(404).json({ message: 'Doctor not found.' });
+    }
+
+    const requestedTime = normalizeTo12HourTime(req.body.time);
+    const allowedSlots = getDoctorAvailabilityForDate(selectedDoctor, req.body.date);
+
+    if (!requestedTime || !allowedSlots.length || !allowedSlots.includes(requestedTime)) {
+      const availableMessage = allowedSlots.length
+        ? `Doctor is not available at this time. Available slots: ${allowedSlots.join(', ')}`
+        : 'Doctor is not available at this time.';
+
+      return res.status(400).json({ message: availableMessage });
+    }
 
     const payload = {
       ...req.body,
@@ -457,18 +517,75 @@ app.patch('/api/admin/users/:id/status', async (req, res) => {
 
 app.post('/api/admin/notifications', async (req, res) => {
   try {
-    const notification = await Notification.create(req.body);
-    res.status(201).json(notification);
+    const payload = {
+      title: req.body.title,
+      target: req.body.target || 'All users',
+      status: req.body.status || 'Live'
+    };
+
+    if (hasMongoConnection()) {
+      const notification = await Notification.create(payload);
+      return res.status(201).json(notification);
+    }
+
+    const notification = {
+      _id: `notice-${Date.now()}`,
+      ...payload,
+      createdAt: new Date().toISOString()
+    };
+    demoNotifications.unshift(notification);
+    return res.status(201).json(notification);
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
 });
 
+app.get('/api/notifications', async (req, res) => {
+  try {
+    if (hasMongoConnection()) {
+      const notifications = await Notification.find().sort({ createdAt: -1 });
+      return res.status(200).json(notifications);
+    }
+
+    const notifications = [...demoNotifications].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+    return res.status(200).json(notifications);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
 
 app.get('/api/admin/notifications', async (req, res) => {
   try {
-    const notifications = await Notification.find().sort({ createdAt: -1 });
-    res.status(200).json(notifications);
+    if (hasMongoConnection()) {
+      const notifications = await Notification.find().sort({ createdAt: -1 });
+      return res.status(200).json(notifications);
+    }
+
+    const notifications = [...demoNotifications].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+    return res.status(200).json(notifications);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+app.delete('/api/admin/notifications/:id', async (req, res) => {
+  try {
+    if (hasMongoConnection()) {
+      const deletedNotification = await Notification.findByIdAndDelete(req.params.id);
+      if (!deletedNotification) {
+        return res.status(404).json({ message: 'Notification not found' });
+      }
+      return res.status(200).json({ message: 'Notification deleted successfully' });
+    }
+
+    const initialLength = demoNotifications.length;
+    demoNotifications = demoNotifications.filter((item) => String(item._id) !== String(req.params.id));
+
+    if (demoNotifications.length === initialLength) {
+      return res.status(404).json({ message: 'Notification not found' });
+    }
+
+    return res.status(200).json({ message: 'Notification deleted successfully' });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { getUsers, updateUserStatus, getAppointments, getHealth, getNotifications, createNotification, getFeedback, getAuditLogs, getDoctors, updateDoctorAvailability, updateDoctorProfile, updateAppointment } from '../api';
+import { getUsers, updateUserStatus, getAppointments, getHealth, getNotifications, createNotification, deleteNotification, getFeedback, getAuditLogs, getDoctors, updateDoctorAvailability, updateDoctorProfile, updateAppointment } from '../api';
 import { useNavigate } from 'react-router-dom';
 
 import AishaSilva from '../assets/AishaSilva.avif';
@@ -86,13 +86,22 @@ function AdminDashboard({ user }) {
   };
 
   const handlePostAnnouncement = async () => {
-    if (!newAnnouncement) return;
+    if (!newAnnouncement.trim()) return;
     try {
-      await createNotification({ title: newAnnouncement });
-      setNewAnnouncement(""); 
-      fetchData(); 
+      await createNotification({ title: newAnnouncement.trim(), target: 'All users', status: 'Live' });
+      setNewAnnouncement("");
+      fetchData();
     } catch (err) {
       console.error("Failed to post notification", err);
+    }
+  };
+
+  const handleDeleteNotification = async (notificationId) => {
+    try {
+      await deleteNotification(notificationId);
+      setNotifications(prev => prev.filter(item => item._id !== notificationId));
+    } catch (err) {
+      console.error("Failed to delete notification", err);
     }
   };
 
@@ -465,9 +474,19 @@ function AdminDashboard({ user }) {
                     <strong>{notif.title}</strong>
                     <p>Posted on {new Date(notif.createdAt).toLocaleDateString('en-GB')} • {notif.target}</p>
                   </div>
-                  <span className={`mc-badge ${notif.status === 'Expired' ? 'badge-suspended' : 'badge-active'}`}>
-                    {notif.status}
-                  </span>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                    <span className={`mc-badge ${notif.status === 'Expired' ? 'badge-suspended' : 'badge-active'}`}>
+                      {notif.status}
+                    </span>
+                    <button
+                      type="button"
+                      className="mc-action-btn"
+                      style={{ background: '#ef4444', color: '#fff' }}
+                      onClick={() => handleDeleteNotification(notif._id)}
+                    >
+                      Delete
+                    </button>
+                  </div>
                 </div>
               ))}
               {notifications.length === 0 && (

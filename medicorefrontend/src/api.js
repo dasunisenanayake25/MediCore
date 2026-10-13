@@ -1,9 +1,13 @@
 import axios from "axios";
 
+const defaultApiBaseUrl =
+  typeof window !== "undefined" &&
+  (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1")
+    ? "http://localhost:5000/api"
+    : "/api";
+
 const API = axios.create({
-  baseURL:
-    import.meta.env.VITE_API_URL ||
-    "http://localhost:5000/api",
+  baseURL: import.meta.env.VITE_API_URL || defaultApiBaseUrl,
 });
 
 export const getDoctors = async () => {
@@ -73,7 +77,11 @@ export const updateAppointment = async (id, updates) => {
   return response.data;
 };
 
-// --- NEW ADMIN API CALLS ---
+export const getPublicNotifications = async () => {
+  const response = await API.get('/notifications');
+  return response.data;
+};
+
 export const getNotifications = async () => {
   const response = await API.get('/admin/notifications');
   return response.data;
@@ -81,6 +89,11 @@ export const getNotifications = async () => {
 
 export const createNotification = async (data) => {
   const response = await API.post('/admin/notifications', data);
+  return response.data;
+};
+
+export const deleteNotification = async (id) => {
+  const response = await API.delete(`/admin/notifications/${id}`);
   return response.data;
 };
 
