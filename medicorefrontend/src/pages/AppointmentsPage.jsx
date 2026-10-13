@@ -29,8 +29,18 @@ function AppointmentsPage({ appointments, doctors, message, error, handleCancel,
   return (
     <div className="app">
       <header className="header">
-        <div className="logo">MediCore</div>
+        <div className="logo" onClick={() => navigate("/")} style={{ cursor: "pointer" }}>MediCore</div>
         <nav className="nav">
+          <button
+            type="button"
+            className="nav-button"
+            onClick={() => {
+              const storedUser = JSON.parse(localStorage.getItem("user"));
+              navigate(storedUser?.email === "admin@medicore.com" ? "/admin" : "/dashboard");
+            }}
+          >
+            Dashboard
+          </button>
           <button type="button" className="nav-button" onClick={() => navigate("/")}>
             Home
           </button>
