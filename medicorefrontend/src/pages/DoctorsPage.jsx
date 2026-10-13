@@ -37,9 +37,21 @@ function DoctorsPage({ doctors, navigate }) {
             <p style={{fontSize: "12px", margin: 0, textTransform: "uppercase", letterSpacing: "0.05em", color: "#64748b"}}>Care Beyond Measure</p>
           </div>
         </div>
-        <div className="doc-search">
-          <input type="text" placeholder="Search Doctor" />
-          <FaSearch className="search-icon" />
+        <div style={{ display: "flex", alignItems: "center", gap: "16px" }}>
+          <div className="doc-search">
+            <input type="text" placeholder="Search Doctor" />
+            <FaSearch className="search-icon" />
+          </div>
+          <button
+            type="button"
+            className="primary-button"
+            onClick={() => {
+              const storedUser = JSON.parse(localStorage.getItem("user"));
+              navigate(storedUser?.email === "admin@medicore.com" ? "/admin" : "/dashboard");
+            }}
+          >
+            Dashboard
+          </button>
         </div>
       </div>
 
