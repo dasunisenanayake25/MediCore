@@ -319,15 +319,23 @@ app.post('/api/auth/register', async (req, res) => {
 });
 
 app.post('/api/auth/login', async (req, res) => {
-  const { email, password } = req.body;
+  const email = String(req.body?.email || '').trim().toLowerCase();
+  const password = String(req.body?.password || '').trim();
+
   try {
     let user;
     if (mongoose.connection.readyState === 1) {
       user = await User.findOne({ email, password });
+      if (!user) {
+        user = await User.findOne({ email: email.toLowerCase() });
+        if (user && user.password !== password) {
+          user = null;
+        }
+      }
     } else {
-      user = demoUsers.find(u => u.email === email && u.password === password);
+      user = demoUsers.find(u => String(u.email).toLowerCase() === email && u.password === password);
     }
-    
+
     if (!user) return res.status(401).json({ message: 'Invalid credentials' });
     res.status(200).json({ _id: user._id, username: user.username, email: user.email, token: 'mock-jwt-token-123' });
   } catch (error) {
