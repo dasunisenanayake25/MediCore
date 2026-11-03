@@ -130,7 +130,8 @@ function AdminDashboard({ user }) {
         const slots = (rest.join(':') || '')
           .split(',')
           .map((slot) => slot.trim())
-          .filter(Boolean);
+          .filter(Boolean)
+          .map((slot) => slot.replace(/\s*-\s*/g, ' - '));
 
         return { day: day.trim(), slots };
       })

@@ -14,10 +14,25 @@ const AuditLog = require('./models/AuditLog');
 const app = express();
 const hasMongoConnection = () => Boolean(process.env.MONGO_URI) && mongoose.connection.readyState === 1;
 
-const normalizeTo12HourTime = (timeValue) => {
+const normalizeTimeString = (timeValue) => {
   if (!timeValue || typeof timeValue !== 'string') return null;
 
-  const [hoursString, minutesString] = timeValue.split(':');
+  const trimmedValue = timeValue.trim().replace(/\./g, ':').replace(/\s+/g, ' ');
+  if (!trimmedValue) return null;
+
+  const meridiemMatch = trimmedValue.match(/^(\d{1,2}):(\d{2})\s*(AM|PM)$/i);
+  if (meridiemMatch) {
+    const hours = Number(meridiemMatch[1]);
+    const minutes = Number(meridiemMatch[2]);
+
+    if (Number.isNaN(hours) || Number.isNaN(minutes) || hours < 1 || hours > 12 || minutes < 0 || minutes > 59) {
+      return null;
+    }
+
+    return `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')} ${meridiemMatch[3].toUpperCase()}`;
+  }
+
+  const [hoursString, minutesString] = trimmedValue.split(':');
   if (hoursString === undefined || minutesString === undefined) return null;
 
   const hours = Number(hoursString);
@@ -29,7 +44,65 @@ const normalizeTo12HourTime = (timeValue) => {
 
   const period = hours >= 12 ? 'PM' : 'AM';
   const adjustedHour = hours % 12 || 12;
-  return `${adjustedHour}:${String(minutes).padStart(2, '0')} ${period}`;
+  return `${String(adjustedHour).padStart(2, '0')}:${String(minutes).padStart(2, '0')} ${period}`;
+};
+
+const normalizeSlotString = (slotValue) => {
+  if (!slotValue || typeof slotValue !== 'string') return null;
+
+  const trimmedValue = slotValue.trim().replace(/\./g, ':').replace(/\s+/g, ' ');
+  if (!trimmedValue) return null;
+
+  if (/^\d{1,2}:\d{2}\s*(?:AM|PM)\s*-\s*\d{1,2}:\d{2}\s*(?:AM|PM)$/i.test(trimmedValue)) {
+    return trimmedValue;
+  }
+
+  return normalizeTimeString(trimmedValue) || trimmedValue;
+};
+
+const timeToMinutes = (timeValue) => {
+  if (!timeValue || typeof timeValue !== 'string') return null;
+
+  const cleanedValue = timeValue.trim().replace(/\./g, ':').replace(/\s+/g, ' ');
+  const meridiemMatch = cleanedValue.match(/^(\d{1,2}):(\d{2})\s*(AM|PM)$/i);
+  if (meridiemMatch) {
+    const hours = Number(meridiemMatch[1]);
+    const minutes = Number(meridiemMatch[2]);
+    if (Number.isNaN(hours) || Number.isNaN(minutes) || hours < 1 || hours > 12 || minutes < 0 || minutes > 59) return null;
+    const normalizedHours = hours % 12;
+    return (normalizedHours + 12 * (meridiemMatch[3].toUpperCase() === 'PM' ? 1 : 0)) * 60 + minutes;
+  }
+
+  const simpleMatch = cleanedValue.match(/^(\d{1,2}):(\d{2})$/);
+  if (simpleMatch) {
+    const hours = Number(simpleMatch[1]);
+    const minutes = Number(simpleMatch[2]);
+    if (Number.isNaN(hours) || Number.isNaN(minutes) || hours < 0 || hours > 23 || minutes < 0 || minutes > 59) return null;
+    return hours * 60 + minutes;
+  }
+
+  return null;
+};
+
+const isTimeWithinSlot = (requestedTime, slotValue) => {
+  const requestedMinutes = timeToMinutes(requestedTime);
+  if (requestedMinutes === null || !slotValue || typeof slotValue !== 'string') return false;
+
+  const cleanedSlot = slotValue.trim();
+  const rangeMatch = cleanedSlot.match(/^(\d{1,2}:\d{2}\s*(?:AM|PM))\s*-\s*(\d{1,2}:\d{2}\s*(?:AM|PM))$/i);
+  if (rangeMatch) {
+    const startMinutes = timeToMinutes(rangeMatch[1]);
+    const endMinutes = timeToMinutes(rangeMatch[2]);
+    if (startMinutes === null || endMinutes === null) return false;
+    if (endMinutes < startMinutes) {
+      return requestedMinutes >= startMinutes || requestedMinutes <= endMinutes;
+    }
+    return requestedMinutes >= startMinutes && requestedMinutes <= endMinutes;
+  }
+
+  const slotMinutes = timeToMinutes(cleanedSlot);
+  if (slotMinutes === null) return false;
+  return requestedMinutes === slotMinutes;
 };
 
 const getDoctorAvailabilityForDate = (doctor, appointmentDate) => {
@@ -403,10 +476,14 @@ app.post('/api/appointments', async (req, res) => {
       return res.status(404).json({ message: 'Doctor not found.' });
     }
 
-    const requestedTime = normalizeTo12HourTime(req.body.time);
-    const allowedSlots = getDoctorAvailabilityForDate(selectedDoctor, req.body.date);
+    const requestedTime = normalizeTimeString(req.body.time);
+    const allowedSlots = getDoctorAvailabilityForDate(selectedDoctor, req.body.date)
+      .map((slot) => normalizeSlotString(slot))
+      .filter(Boolean);
 
-    if (!requestedTime || !allowedSlots.length || !allowedSlots.includes(requestedTime)) {
+    const matchesSchedule = allowedSlots.some((slot) => isTimeWithinSlot(req.body.time, slot));
+
+    if (!requestedTime || !allowedSlots.length || !matchesSchedule) {
       const availableMessage = allowedSlots.length
         ? `Doctor is not available at this time. Available slots: ${allowedSlots.join(', ')}`
         : 'Doctor is not available at this time.';
@@ -418,6 +495,7 @@ app.post('/api/appointments', async (req, res) => {
       ...req.body,
       doctorId: req.body.doctorId || (selectedDoctor ? selectedDoctor._id : ''),
       doctorName: req.body.doctorName || (selectedDoctor ? selectedDoctor.name : 'Unknown Doctor'),
+      time: req.body.time || requestedTime,
       status: req.body.status || 'Pending',
       createdAt: new Date()
     };

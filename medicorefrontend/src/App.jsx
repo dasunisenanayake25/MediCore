@@ -34,6 +34,49 @@ const initialForm = {
   time: "",
 };
 
+const timeToMinutes = (timeValue) => {
+  if (!timeValue || typeof timeValue !== "string") return null;
+
+  const cleanedValue = timeValue.trim().replace(/\./g, ":").replace(/\s+/g, " ");
+  const meridiemMatch = cleanedValue.match(/^(\d{1,2}):(\d{2})\s*(AM|PM)$/i);
+  if (meridiemMatch) {
+    const hours = Number(meridiemMatch[1]);
+    const minutes = Number(meridiemMatch[2]);
+    if (Number.isNaN(hours) || Number.isNaN(minutes) || hours < 1 || hours > 12 || minutes < 0 || minutes > 59) return null;
+    const normalizedHours = hours % 12;
+    return (normalizedHours + 12 * (meridiemMatch[3].toUpperCase() === "PM" ? 1 : 0)) * 60 + minutes;
+  }
+
+  const simpleMatch = cleanedValue.match(/^(\d{1,2}):(\d{2})$/);
+  if (simpleMatch) {
+    const hours = Number(simpleMatch[1]);
+    const minutes = Number(simpleMatch[2]);
+    if (Number.isNaN(hours) || Number.isNaN(minutes) || hours < 0 || hours > 23 || minutes < 0 || minutes > 59) return null;
+    return hours * 60 + minutes;
+  }
+
+  return null;
+};
+
+const isTimeInSchedule = (requestedTime, slotValue) => {
+  const requestedMinutes = timeToMinutes(requestedTime);
+  if (requestedMinutes === null || !slotValue || typeof slotValue !== "string") return false;
+
+  const rangeMatch = slotValue.trim().match(/^(\d{1,2}:\d{2}\s*(?:AM|PM))\s*-\s*(\d{1,2}:\d{2}\s*(?:AM|PM))$/i);
+  if (rangeMatch) {
+    const startMinutes = timeToMinutes(rangeMatch[1]);
+    const endMinutes = timeToMinutes(rangeMatch[2]);
+    if (startMinutes === null || endMinutes === null) return false;
+    if (endMinutes < startMinutes) {
+      return requestedMinutes >= startMinutes || requestedMinutes <= endMinutes;
+    }
+    return requestedMinutes >= startMinutes && requestedMinutes <= endMinutes;
+  }
+
+  const slotMinutes = timeToMinutes(slotValue);
+  return slotMinutes !== null && requestedMinutes === slotMinutes;
+};
+
 function App() {
   return (
     <BrowserRouter>
@@ -97,22 +140,13 @@ function AppRoutes() {
         ? selectedDoctor.availability.find((slot) => slot.day === selectedDay)?.slots || []
         : [];
 
-      const normalizedTime = (() => {
-        const [hoursString, minutesString] = requestedTime.split(':');
-        const hours = Number(hoursString);
-        const minutes = Number(minutesString);
+      const normalizedAllowedSlots = allowedSlots.filter(Boolean);
+      const isAvailable = normalizedAllowedSlots.some((slot) => isTimeInSchedule(requestedTime, slot));
 
-        if (Number.isNaN(hours) || Number.isNaN(minutes)) return null;
-
-        const period = hours >= 12 ? 'PM' : 'AM';
-        const adjustedHour = hours % 12 || 12;
-        return `${adjustedHour}:${String(minutes).padStart(2, '0')} ${period}`;
-      })();
-
-      if (!allowedSlots.length || !allowedSlots.includes(normalizedTime)) {
+      if (!normalizedAllowedSlots.length || !isAvailable) {
         setError(
-          allowedSlots.length
-            ? `Doctor is not available at this time. Available slots: ${allowedSlots.join(', ')}`
+          normalizedAllowedSlots.length
+            ? `Doctor is not available at this time. Available slots: ${normalizedAllowedSlots.join(', ')}`
             : 'Doctor is not available at this time.'
         );
         return;
