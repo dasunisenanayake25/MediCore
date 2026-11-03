@@ -37,6 +37,81 @@ test('backend exposes /api/health for frontend connectivity', async () => {
   }
 });
 
+test('appointment creation accepts a time that matches the doctor schedule for that day', async () => {
+  const server = spawn(process.execPath, ['server.js'], {
+    cwd: __dirname + '/..',
+    env: { ...process.env, PORT: '5012' },
+    stdio: ['ignore', 'pipe', 'pipe'],
+  });
+
+  try {
+    await waitForServer('http://localhost:5012/api/health');
+
+    const response = await fetch('http://localhost:5012/api/appointments', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        patientName: 'Valid Patient',
+        email: 'valid@example.com',
+        phone: '9876543210',
+        doctorId: 'doc-1',
+        date: '2026-10-12',
+        time: '09:00',
+      }),
+    });
+
+    const body = await response.json();
+    assert.equal(response.status, 201);
+    assert.equal(body.doctorId, 'doc-1');
+    assert.equal(body.time, '09:00');
+  } finally {
+    server.kill('SIGTERM');
+  }
+});
+
+test('appointment creation accepts any time inside a doctor availability range', async () => {
+  const server = spawn(process.execPath, ['server.js'], {
+    cwd: __dirname + '/..',
+    env: { ...process.env, PORT: '5013' },
+    stdio: ['ignore', 'pipe', 'pipe'],
+  });
+
+  try {
+    await waitForServer('http://localhost:5013/api/health');
+
+    const updateResponse = await fetch('http://localhost:5013/api/admin/doctors/doc-9/availability', {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        availability: [
+          { day: 'Mon', slots: ['09:30 AM - 01:00 PM'] }
+        ]
+      }),
+    });
+
+    assert.equal(updateResponse.status, 200);
+
+    const response = await fetch('http://localhost:5013/api/appointments', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        patientName: 'Range Patient',
+        email: 'range@example.com',
+        phone: '5555555555',
+        doctorId: 'doc-9',
+        date: '2026-10-26',
+        time: '12:15',
+      }),
+    });
+
+    const body = await response.json();
+    assert.equal(response.status, 201);
+    assert.equal(body.doctorId, 'doc-9');
+  } finally {
+    server.kill('SIGTERM');
+  }
+});
+
 test('appointment creation rejects times outside the doctor schedule', async () => {
   const server = spawn(process.execPath, ['server.js'], {
     cwd: __dirname + '/..',
