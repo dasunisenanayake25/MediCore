@@ -1,4 +1,6 @@
 require('dotenv').config();
+const bcrypt = require('bcryptjs');
+const jwt = require('jsonwebtoken');
 const express = require('express');
 const cors = require('cors');
 const mongoose = require('mongoose');
@@ -353,13 +355,15 @@ let demoNotifications = [
     createdAt: new Date().toISOString()
   }
 ];
+const _adminHash = bcrypt.hashSync('password123', 10);
+const _doctorHash = bcrypt.hashSync('doctor123', 10);
 let demoUsers = [
-  { _id: 'admin-1', username: 'System Admin', email: 'admin@medicore.com', password: 'password123', role: 'admin', status: 'active' },
+  { _id: 'admin-1', username: 'System Admin', email: 'admin@medicore.com', password: _adminHash, role: 'admin', status: 'active' },
   ...demoDoctors.map((doctor) => ({
     _id: doctor._id,
     username: doctor.name,
     email: doctor.email,
-    password: 'doctor123',
+    password: _doctorHash,
     role: 'doctor',
     status: 'active',
     specialization: doctor.specialization,
@@ -375,14 +379,16 @@ connectDB();
 app.post('/api/auth/register', async (req, res) => {
   const { username, email, password } = req.body;
   try {
+    const hashedPassword = await bcrypt.hash(password, 10);
+
     if (mongoose.connection.readyState === 1) {
       const existingUser = await User.findOne({ email });
       if (existingUser) return res.status(400).json({ message: 'User already exists' });
-      const user = await User.create({ username, email, password });
+      const user = await User.create({ username, email, password: hashedPassword });
       return res.status(201).json({ _id: user._id, username: user.username, email: user.email });
     } else {
       if (demoUsers.find(u => u.email === email)) return res.status(400).json({ message: 'User already exists' });
-      const user = { _id: "user-" + Date.now(), username, email, password, role: 'patient', status: 'active' };
+      const user = { _id: 'user-' + Date.now(), username, email, password: hashedPassword, role: 'patient', status: 'active' };
       demoUsers.push(user);
       return res.status(201).json({ _id: user._id, username: user.username, email: user.email });
     }
@@ -396,13 +402,24 @@ app.post('/api/auth/login', async (req, res) => {
   try {
     let user;
     if (mongoose.connection.readyState === 1) {
-      user = await User.findOne({ email, password });
+      user = await User.findOne({ email });
     } else {
-      user = demoUsers.find(u => u.email === email && u.password === password);
+      user = demoUsers.find(u => u.email === email);
     }
-    
+
     if (!user) return res.status(401).json({ message: 'Invalid credentials' });
-    res.status(200).json({ _id: user._id, username: user.username, email: user.email, token: 'mock-jwt-token-123' });
+
+    const passwordMatch = await bcrypt.compare(password, user.password);
+    if (!passwordMatch) return res.status(401).json({ message: 'Invalid credentials' });
+
+    const secret = process.env.JWT_SECRET || 'medicore_dev_secret';
+    const token = jwt.sign(
+      { _id: user._id, email: user.email, role: user.role },
+      secret,
+      { expiresIn: '7d' }
+    );
+
+    res.status(200).json({ _id: user._id, username: user.username, email: user.email, role: user.role, token });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
