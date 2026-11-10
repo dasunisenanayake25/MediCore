@@ -6,13 +6,27 @@ const API = axios.create({
   baseURL: import.meta.env.VITE_API_URL || defaultApiBaseUrl,
 });
 
+API.interceptors.request.use((config) => {
+  try {
+    const user = JSON.parse(sessionStorage.getItem('user') || 'null');
+    if (user?.token) {
+      config.headers.Authorization = `Bearer ${user.token}`;
+    }
+  } catch {
+    sessionStorage.removeItem('user');
+  }
+
+  return config;
+});
+
 export const getDoctors = async () => {
   const response = await API.get("/doctors");
   return response.data;
 };
 
-export const getAppointments = async () => {
-  const response = await API.get("/appointments");
+export const getAppointments = async (email) => {
+  const params = email === null ? { mine: 'true' } : email ? { email } : undefined;
+  const response = await API.get("/appointments", { params });
   return response.data;
 };
 
@@ -33,6 +47,11 @@ export const cancelAppointment = async (id) => {
   return response.data;
 };
 
+export const updateAppointmentStatus = async (id, status) => {
+  const response = await API.patch(`/appointments/${id}/status`, { status });
+  return response.data;
+};
+
 export const getHealth = async () => {
   const response = await API.get("/health");
   return response.data;
@@ -50,6 +69,16 @@ export const loginUser = async (credentials) => {
 
 export const getUsers = async () => {
   const response = await API.get('/admin/users');
+  return response.data;
+};
+
+export const createDoctor = async (doctor) => {
+  const response = await API.post('/admin/doctors', doctor);
+  return response.data;
+};
+
+export const deleteDoctor = async (id) => {
+  const response = await API.delete(`/admin/doctors/${id}`);
   return response.data;
 };
 

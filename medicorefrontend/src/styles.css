@@ -1589,6 +1589,80 @@ section[id], footer[id] {
   line-height: 1.6;
 }
 
+.doctor-portal {
+  background: #f1f5f9;
+}
+
+.doctor-portal .header {
+  background: #1e3a8a;
+  box-shadow: 0 10px 25px rgba(30, 58, 138, 0.18);
+}
+
+.doctor-portal .header .eyebrow {
+  color: #bfdbfe;
+  margin-top: 2px;
+}
+
+.doctor-portal .section-title {
+  color: #1e3a8a;
+}
+
+.doctor-portal .appointments-card {
+  border-top: 4px solid #2563eb;
+}
+
+.doctor-portal .dash-info-card {
+  border: 1px solid #dbeafe;
+  box-shadow: 0 8px 20px rgba(30, 64, 175, 0.06);
+}
+
+.doctor-portal .dash-info-card h2 {
+  color: #1e40af;
+  font-size: 32px;
+  margin: 8px 0;
+}
+
+.doctor-portal .dash-info-card .eyebrow {
+  color: #1e40af;
+  font-weight: 800;
+}
+
+.doctor-portal .appointments-table th {
+  background: #eff6ff;
+  color: #1e3a8a;
+}
+
+.doctor-portal .book-button {
+  background: #1e40af;
+}
+
+.doctor-portal .book-button:hover {
+  background: #1e3a8a;
+}
+
+@media (max-width: 760px) {
+  .doctor-portal .header {
+    align-items: flex-start;
+    gap: 14px;
+    padding: 18px 5%;
+  }
+
+  .doctor-portal .logo {
+    font-size: 23px;
+  }
+
+  .doctor-portal .nav {
+    gap: 8px;
+    flex-direction: column;
+    align-items: flex-end;
+  }
+
+  .doctor-portal .dash-info-cards {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+}
+
 
 /* MEDICORE HYBRID ADMIN DASHBOARD STYLES */
 .mc-admin-wrapper {

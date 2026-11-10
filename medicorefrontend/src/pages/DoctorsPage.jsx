@@ -51,7 +51,7 @@ function DoctorsPage({ doctors, navigate }) {
     experience: doc.experience || `${5 + (idx % 7)} years`,
     rating: Number(doc.rating) || (4.5 + (idx % 5) * 0.1),
     address: doc.address || "1200 Natalie Brook Apt. 966",
-    image: doctorImageMap[doc.name] || doc.image || `https://i.pravatar.cc/150?img=${idx + 11}`
+    image: doctorImageMap[doc.name] || doc.image || null
   }));
 
   const fallbackDoctors = [
@@ -99,8 +99,8 @@ function DoctorsPage({ doctors, navigate }) {
             type="button"
             className="primary-button"
             onClick={() => {
-              const storedUser = JSON.parse(localStorage.getItem("user"));
-              navigate(storedUser?.email === "admin@medicore.com" ? "/admin" : "/dashboard");
+              const storedUser = JSON.parse(sessionStorage.getItem("user"));
+              navigate(storedUser?.role === "admin" ? "/admin" : storedUser?.role === "doctor" ? "/doctor" : "/dashboard");
             }}
           >
             Dashboard
@@ -126,7 +126,7 @@ function DoctorsPage({ doctors, navigate }) {
         {filteredDoctors.map((doc) => (
           <div className="doc-card" key={doc._id}>
             <div className="doc-avatar">
-              <img src={doc.image} alt={doc.name} />
+              {doc.image ? <img src={doc.image} alt={doc.name} /> : <span>{doc.name?.charAt(0) || '?'}</span>}
             </div>
 
             <div className="doc-rating-row">

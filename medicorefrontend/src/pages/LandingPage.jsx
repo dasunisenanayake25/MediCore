@@ -47,8 +47,8 @@ function LandingPage({ navigate, user, setUser }) {
           {user ? (
             <>
               <span style={{fontWeight: "bold", color: "#1e40af"}}>Hi, {user.username}</span>
-              <button className="landing-reg-btn" onClick={() => user.email === "admin@medicore.com" ? navigate("/admin") : navigate("/dashboard")}>Dashboard</button>
-              <button className="landing-login-btn" onClick={() => { localStorage.removeItem("user"); setUser(null); }}>Logout</button>
+              <button className="landing-reg-btn" onClick={() => user.role === "admin" ? navigate("/admin") : user.role === "doctor" ? navigate("/doctor") : navigate("/dashboard")}>Dashboard</button>
+              <button className="landing-login-btn" onClick={() => { sessionStorage.removeItem("user"); setUser(null); }}>Logout</button>
             </>
           ) : (
             <>

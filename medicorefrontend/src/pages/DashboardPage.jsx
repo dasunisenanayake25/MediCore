@@ -25,7 +25,7 @@ function DashboardPage({ navigate, user, setUser }) {
           <button type="button" className="nav-button" onClick={() => navigate("/")}>
             Home
           </button>
-          <button type="button" className="nav-button" onClick={() => { localStorage.removeItem("user"); setUser(null); navigate("/"); }}>
+          <button type="button" className="nav-button" onClick={() => { sessionStorage.removeItem("user"); setUser(null); navigate("/"); }}>
             Logout
           </button>
         </nav>

@@ -11,8 +11,8 @@ function LoginPage({ navigate, setUser }) {
     e.preventDefault();
     try {
       const user = await loginUser(formData);
-      localStorage.setItem("user", JSON.stringify(user));
-      setUser(user); if (user.email === "admin@medicore.com") { navigate("/admin"); } else { navigate("/dashboard"); }
+      sessionStorage.setItem("user", JSON.stringify(user));
+      setUser(user); if (user.role === "admin") { navigate("/admin"); } else if (user.role === "doctor") { navigate("/doctor"); } else { navigate("/dashboard"); }
     } catch (err) {
       setError(err.response?.data?.message || "Login failed");
     }
