@@ -3,30 +3,17 @@ services:
     build: ./medicore-backend
     container_name: medicore_backend
     ports:
-      - "5001:5000"
+      - "5000:5000"
     environment:
-      MONGO_URI: mongodb://mongodb:27017/medicore_db
+      MONGO_URI: mongodb+srv://medicore_admin:mediCORE123@cluster0.nu4hyik.mongodb.net/medicore_db?retryWrites=true&w=majority
       PORT: 5000
-    depends_on:
-      - mongodb
     restart: unless-stopped
 
   frontend:
     build: ./medicorefrontend
     container_name: medicore_frontend
     ports:
-      - "8080:80"
+      - "80:80"
     depends_on:
       - backend
-
-  mongodb:
-    image: mongo:7
-    container_name: medicore_mongodb
     restart: unless-stopped
-    ports:
-      - "27017:27017"
-    volumes:
-      - mongodb_data:/data/db
-
-volumes:
-  mongodb_data:
