@@ -11,8 +11,8 @@ function RegisterPage({ navigate, setUser }) {
     e.preventDefault();
     try {
       const user = await registerUser(formData);
-      localStorage.setItem("user", JSON.stringify(user));
-      setUser(user); if (user.email === "admin@medicore.com") { navigate("/admin"); } else { navigate("/dashboard"); }
+      sessionStorage.setItem("user", JSON.stringify(user));
+      setUser(user); if (user.role === "admin") { navigate("/admin"); } else if (user.role === "doctor") { navigate("/doctor"); } else { navigate("/dashboard"); }
     } catch (err) {
       setError(err.response?.data?.message || "Registration failed");
     }
@@ -64,7 +64,7 @@ function RegisterPage({ navigate, setUser }) {
               <label>Password</label>
               <div className="input-group">
                 <FaLock className="input-icon" />
-                <input type="password" placeholder="Password" required value={formData.password} onChange={(e) => setFormData({...formData, password: e.target.value})} />
+                <input type="password" placeholder="Password" minLength={8} required value={formData.password} onChange={(e) => setFormData({...formData, password: e.target.value})} />
               </div>
             </div>
 

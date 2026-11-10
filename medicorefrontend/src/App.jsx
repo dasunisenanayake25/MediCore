@@ -1,6 +1,6 @@
 import { FaTooth, FaBrain, FaHeartbeat, FaStethoscope, FaBone, FaLungs, FaPhoneAlt, FaEnvelope, FaUser, FaLock, FaSearch, FaStar, FaCalendarAlt, FaTh, FaList } from "react-icons/fa";
 import { useEffect, useState } from "react";
-import { BrowserRouter, Route, Routes, useNavigate, Link } from "react-router-dom";
+import { BrowserRouter, Navigate, Route, Routes, useNavigate } from "react-router-dom";
 
 import {
   getDoctors,
@@ -24,6 +24,7 @@ import RegisterPage from "./pages/RegisterPage";
 import LoginPage from "./pages/LoginPage";
 import DashboardPage from "./pages/DashboardPage";
 import AdminDashboard from "./pages/AdminDashboard";
+import DoctorDashboard from "./pages/DoctorDashboard";
 
 const initialForm = {
   patientName: "",
@@ -87,7 +88,14 @@ function App() {
 
 function AppRoutes() {
   const navigate = useNavigate();
-  const [user, setUser] = useState(() => JSON.parse(localStorage.getItem('user')) || null);
+  const [user, setUser] = useState(() => {
+    try {
+      return JSON.parse(sessionStorage.getItem('user') || 'null');
+    } catch {
+      sessionStorage.removeItem('user');
+      return null;
+    }
+  });
   const [doctors, setDoctors] = useState([]);
   const [appointments, setAppointments] = useState([]);
   const [form, setForm] = useState(initialForm);
@@ -96,9 +104,10 @@ function AppRoutes() {
 
   const loadData = async () => {
     try {
+      const appointmentEmail = user?.role === 'admin' ? undefined : user?.email || null;
       const [doctorsData, appointmentsData] = await Promise.all([
         getDoctors(),
-        getAppointments(),
+        getAppointments(appointmentEmail),
       ]);
 
       setDoctors(doctorsData);
@@ -111,7 +120,7 @@ function AppRoutes() {
 
   useEffect(() => {
     loadData();
-  }, []);
+  }, [user]);
 
   const handleChange = (event) => {
     setForm({
@@ -184,36 +193,41 @@ function AppRoutes() {
     <Routes>
       <Route path="/" element={<LandingPage navigate={navigate} user={user} setUser={setUser} />} />
       <Route path="/register" element={<RegisterPage navigate={navigate} setUser={setUser} />} />
-      <Route path="/admin" element={<AdminDashboard user={user} />} />
-      <Route path="/dashboard" element={<DashboardPage navigate={navigate} user={user} setUser={setUser} />} />
+      <Route path="/admin" element={user?.role === 'admin' ? <AdminDashboard user={user} /> : <Navigate to="/login" replace />} />
+      <Route path="/doctor" element={user?.role === 'doctor' ? <DoctorDashboard user={user} /> : <Navigate to="/login" replace />} />
+      <Route path="/dashboard" element={user ? <DashboardPage navigate={navigate} user={user} setUser={setUser} /> : <Navigate to="/login" replace />} />
       <Route path="/login" element={<LoginPage navigate={navigate} setUser={setUser} />} />
       <Route
         path="/booking"
         element={
-          <BookingPage
-            doctors={doctors}
-            form={form}
-            error={error}
-            handleChange={handleChange}
-            handleSubmit={handleSubmit}
-            setError={setError}
-            navigate={navigate}
-          />
+          user ? (
+            <BookingPage
+              doctors={doctors}
+              form={form}
+              error={error}
+              handleChange={handleChange}
+              handleSubmit={handleSubmit}
+              setError={setError}
+              navigate={navigate}
+            />
+          ) : <Navigate to="/login" replace />
         }
       />
       <Route path="/doctors" element={<DoctorsPage doctors={doctors} navigate={navigate} />} />
       <Route
         path="/appointments"
         element={
-          <AppointmentsPage
-            appointments={appointments}
-            doctors={doctors}
-            message={message}
-            error={error}
-            handleCancel={handleCancel}
-            setError={setError}
-            navigate={navigate}
-          />
+          user ? (
+            <AppointmentsPage
+              appointments={appointments}
+              doctors={doctors}
+              message={message}
+              error={error}
+              handleCancel={handleCancel}
+              setError={setError}
+              navigate={navigate}
+            />
+          ) : <Navigate to="/login" replace />
         }
       />
     </Routes>

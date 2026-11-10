@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { getUsers, updateUserStatus, getAppointments, getHealth, getNotifications, createNotification, deleteNotification, getFeedback, getAuditLogs, getDoctors, updateDoctorAvailability, updateDoctorProfile, updateAppointment } from '../api';
+import { getUsers, updateUserStatus, getAppointments, getHealth, getNotifications, createNotification, deleteNotification, getFeedback, getAuditLogs, getDoctors, createDoctor, deleteDoctor, updateDoctorAvailability, updateDoctorProfile, updateAppointment } from '../api';
 import { useNavigate } from 'react-router-dom';
 
 import AishaSilva from '../assets/AishaSilva.avif';
@@ -49,6 +49,17 @@ function AdminDashboard({ user }) {
   const [roleFilter, setRoleFilter] = useState('all');
   const [statusFilter, setStatusFilter] = useState('all');
   const [selectedUserId, setSelectedUserId] = useState(null);
+  const [showDoctorForm, setShowDoctorForm] = useState(false);
+  const [doctorFormError, setDoctorFormError] = useState('');
+  const [doctorForm, setDoctorForm] = useState({
+    name: '',
+    email: '',
+    password: '',
+    specialization: '',
+    department: '',
+    experience: '',
+    address: '',
+  });
 
   useEffect(() => {
     fetchData();
@@ -106,7 +117,7 @@ function AdminDashboard({ user }) {
   };
 
   const handleLogout = () => {
-    localStorage.removeItem("user");
+    sessionStorage.removeItem("user");
     navigate("/");
   };
 
@@ -156,6 +167,31 @@ function AdminDashboard({ user }) {
       setDoctorsList(prev => prev.map(doc => (doc._id === doctorId ? { ...doc, ...updatedDoctor, [field]: value } : doc)));
     } catch (err) {
       console.error("Failed to update doctor profile", err);
+    }
+  };
+
+  const handleCreateDoctor = async (event) => {
+    event.preventDefault();
+    setDoctorFormError('');
+
+    try {
+      await createDoctor(doctorForm);
+      setDoctorForm({ name: '', email: '', password: '', specialization: '', department: '', experience: '', address: '' });
+      setShowDoctorForm(false);
+      await fetchData();
+    } catch (err) {
+      setDoctorFormError(err.response?.data?.message || 'Failed to create doctor.');
+    }
+  };
+
+  const handleDeleteDoctor = async (doctor) => {
+    if (!window.confirm(`Delete ${doctor.name || doctor.username}? This cannot be undone.`)) return;
+
+    try {
+      await deleteDoctor(doctor._id);
+      await fetchData();
+    } catch (err) {
+      setDoctorFormError(err.response?.data?.message || 'Failed to delete doctor.');
     }
   };
 
@@ -250,11 +286,17 @@ function AdminDashboard({ user }) {
                 <div className="mc-doc-card" style={{ padding: '20px' }}>
                   <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '16px' }}>
                     {selectedUser.role === 'doctor' ? (
-                      <img
-                        src={doctorImageMap[selectedUser.username] || doctorImageMap[selectedUser.name] || 'https://i.pravatar.cc/150'}
-                        alt={selectedUser.username}
-                        style={{ width: '110px', height: '110px', borderRadius: '50%', objectFit: 'cover', border: '3px solid #dbeafe' }}
-                      />
+                      doctorImageMap[selectedUser.username] || doctorImageMap[selectedUser.name] ? (
+                        <img
+                          src={doctorImageMap[selectedUser.username] || doctorImageMap[selectedUser.name]}
+                          alt={selectedUser.username}
+                          style={{ width: '110px', height: '110px', borderRadius: '50%', objectFit: 'cover', border: '3px solid #dbeafe' }}
+                        />
+                      ) : (
+                        <div style={{ width: '110px', height: '110px', borderRadius: '50%', background: '#dbeafe', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '38px', fontWeight: 700, color: '#1d4ed8' }}>
+                          {selectedUser.username?.charAt(0)?.toUpperCase() || 'D'}
+                        </div>
+                      )
                     ) : (
                       <div style={{ width: '110px', height: '110px', borderRadius: '50%', background: '#dbeafe', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '38px', fontWeight: 700, color: '#1d4ed8' }}>
                         {selectedUser.username?.charAt(0)?.toUpperCase() || 'P'}
@@ -342,19 +384,59 @@ function AdminDashboard({ user }) {
                 <h1>Doctors & departments</h1>
                 <p>Profiles, specializations and schedules</p>
               </div>
-              <button className="mc-action-btn primary">Add doctor</button>
+              <button className="mc-action-btn primary" onClick={() => { setDoctorFormError(''); setShowDoctorForm(true); }}>Add doctor</button>
             </header>
+
+            {showDoctorForm && (
+              <form onSubmit={handleCreateDoctor} className="mc-doc-card" style={{ marginBottom: '24px', padding: '20px' }}>
+                <h3 className="mc-subheading" style={{ marginTop: 0 }}>Add doctor</h3>
+                {doctorFormError && <p style={{ color: '#b91c1c', margin: '0 0 12px' }}>{doctorFormError}</p>}
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, minmax(0, 1fr))', gap: '12px' }}>
+                  {[
+                    ['name', 'Full name', 'Dr. Jane Smith'],
+                    ['email', 'Email', 'jane@medicore.com'],
+                    ['password', 'Temporary password', 'Enter a password'],
+                    ['specialization', 'Specialization', 'Cardiology'],
+                    ['department', 'Department', 'Cardiology'],
+                    ['experience', 'Experience', '5 years'],
+                    ['address', 'Address', 'Clinic address'],
+                  ].map(([field, label, placeholder]) => (
+                    <label key={field} style={{ display: 'grid', gap: '5px', color: '#334155', fontSize: '13px' }}>
+                      <span>{label}</span>
+                      <input
+                        required={['name', 'email', 'password', 'specialization'].includes(field)}
+                        type={field === 'email' ? 'email' : field === 'password' ? 'password' : 'text'}
+                        value={doctorForm[field]}
+                        placeholder={placeholder}
+                        onChange={(event) => setDoctorForm(prev => ({ ...prev, [field]: event.target.value }))}
+                        style={{ border: '1px solid #dbeafe', borderRadius: '8px', padding: '9px 10px' }}
+                      />
+                    </label>
+                  ))}
+                </div>
+                <div style={{ display: 'flex', gap: '10px', marginTop: '16px' }}>
+                  <button type="submit" className="mc-action-btn primary">Create doctor</button>
+                  <button type="button" className="mc-action-btn outline" onClick={() => setShowDoctorForm(false)}>Cancel</button>
+                </div>
+              </form>
+            )}
             
             <h3 className="mc-subheading">Doctor profiles</h3>
             <div className="mc-doc-grid">
               {docs.map(doc => (
                 <div className="mc-doc-card" key={doc._id}>
                   <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '14px' }}>
-                    <img
-                      src={doctorImageMap[doc.name || doc.username] || doc.image || 'https://i.pravatar.cc/150'}
-                      alt={doc.name || doc.username}
-                      style={{ width: '92px', height: '92px', borderRadius: '50%', objectFit: 'cover', border: '3px solid #dbeafe' }}
-                    />
+                    {doctorImageMap[doc.name || doc.username] || doc.image ? (
+                      <img
+                        src={doctorImageMap[doc.name || doc.username] || doc.image}
+                        alt={doc.name || doc.username}
+                        style={{ width: '92px', height: '92px', borderRadius: '50%', objectFit: 'cover', border: '3px solid #dbeafe' }}
+                      />
+                    ) : (
+                      <div style={{ width: '92px', height: '92px', borderRadius: '50%', background: '#dbeafe', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '32px', fontWeight: 700, color: '#1d4ed8' }}>
+                        {(doc.name || doc.username)?.charAt(0)?.toUpperCase() || 'D'}
+                      </div>
+                    )}
                   </div>
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                     <input
@@ -362,6 +444,9 @@ function AdminDashboard({ user }) {
                       onChange={(e) => handleDoctorFieldUpdate(doc._id, 'name', e.target.value)}
                       style={{ border: '1px solid #dbeafe', borderRadius: '8px', padding: '8px 10px', fontWeight: 700 }}
                     />
+                    <div style={{ padding: '8px 10px', borderRadius: '8px', background: '#f8fafc', color: '#475569', fontSize: '13px' }}>
+                      <strong>Email:</strong> {doc.email || 'No email available'}
+                    </div>
                     <input
                       value={doc.specialization || doc.department || 'General Medicine'}
                       onChange={(e) => handleDoctorFieldUpdate(doc._id, 'specialization', e.target.value)}
@@ -392,6 +477,7 @@ function AdminDashboard({ user }) {
                       style={{ width: '100%', borderRadius: '10px', border: '1px solid #dbeafe', padding: '8px 10px', fontFamily: 'inherit' }}
                     />
                     <button className="mc-action-btn primary" onClick={() => handleAvailabilityUpdate(doc._id, availabilityDrafts[doc._id] ?? '')}>Save schedule</button>
+                    <button type="button" className="mc-action-btn outline" onClick={() => handleDeleteDoctor(doc)}>Delete doctor</button>
                   </div>
                 </div>
               ))}

@@ -12,8 +12,8 @@ function BookingPage({ doctors, form, error, handleChange, handleSubmit, setErro
             type="button"
             className="nav-button"
             onClick={() => {
-              const storedUser = JSON.parse(localStorage.getItem("user"));
-              navigate(storedUser?.email === "admin@medicore.com" ? "/admin" : "/dashboard");
+              const storedUser = JSON.parse(sessionStorage.getItem("user"));
+              navigate(storedUser?.role === "admin" ? "/admin" : storedUser?.role === "doctor" ? "/doctor" : "/dashboard");
             }}
           >
             Dashboard
