@@ -1,17 +1,5 @@
 pipeline {
-    agent any
-
-    options {
-        timestamps()
-        disableConcurrentBuilds()
-    }
-
-    environment {
-        COMPOSE_DOCKER_CLI_BUILD = '1'
-        DOCKER_BUILDKIT = '1'
-        COMPOSE_PROJECT_NAME = 'medicore'
-        FRONTEND_PORT = '8082'
-    }
+    agent { label 'rootless-docker' }
 
     stages {
         stage('Checkout') {
@@ -20,69 +8,30 @@ pipeline {
             }
         }
 
-        stage('Backend Tests') {
+        stage('Backend Test') {
             steps {
-                sh '''
-                    set -eu
-                    docker run --rm \
-                        --volume "$PWD/medicore-backend:/app" \
-                        --workdir /app \
-                        node:20-alpine sh -c "npm ci && npm test"
-                '''
+                sh 'cd medicore-backend && npm ci && npm test'
             }
         }
 
-        stage('Frontend Quality') {
+        stage('Frontend Build') {
             steps {
-                sh '''
-                    set -eu
-                    docker run --rm \
-                        --volume "$PWD/medicorefrontend:/app" \
-                        --workdir /app \
-                        node:20-alpine sh -c "npm ci && npm run lint && npm run build"
-                '''
+                sh 'cd medicorefrontend && npm ci && npm run lint && npm run build'
             }
         }
 
-        stage('Build Docker Images') {
+        stage('Build Images') {
             steps {
-                sh '''
-                    set -eu
-                    docker compose -p "$COMPOSE_PROJECT_NAME" build
-                '''
+                sh 'docker build -t medicore-backend:${BUILD_NUMBER} ./medicore-backend'
+                sh 'docker build -t medicore-frontend:${BUILD_NUMBER} ./medicorefrontend'
             }
         }
 
         stage('Deploy') {
             steps {
-                sh '''
-                    set -eu
-                    docker compose -p "$COMPOSE_PROJECT_NAME" up -d --build
-
-                    for attempt in $(seq 1 30); do
-                        if docker run --rm --network "${COMPOSE_PROJECT_NAME}_default" curlimages/curl:8.10.1 \
-                            --fail --silent http://frontend/api/health >/dev/null 2>&1; then
-                            echo 'Deployment health check passed.'
-                            exit 0
-                        fi
-                        sleep 2
-                    done
-
-                    echo 'Deployment health check failed'
-                    docker compose -p "$COMPOSE_PROJECT_NAME" ps
-                    docker compose -p "$COMPOSE_PROJECT_NAME" logs
-                    exit 1
-                '''
+                sh 'docker compose up -d --build'
+                sh 'curl --fail http://localhost/api/health'
             }
-        }
-    }
-
-    post {
-        success {
-            echo 'MediCore CI/CD pipeline completed successfully.'
-        }
-        failure {
-            echo 'MediCore CI/CD pipeline failed.'
         }
     }
 }
