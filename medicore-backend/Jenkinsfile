@@ -1,8 +1,14 @@
 pipeline {
-    agent { label 'rootless-docker' }
+    agent any
 
     options {
         timestamps()
+        disableConcurrentBuilds()
+    }
+
+    environment {
+        COMPOSE_DOCKER_CLI_BUILD = '1'
+        DOCKER_BUILDKIT = '1'
     }
 
     stages {
@@ -12,17 +18,59 @@ pipeline {
             }
         }
 
-        stage('Build & Test Backend') {
+        stage('Backend Tests') {
             steps {
-                sh 'mvn clean package -DskipTests'
+                sh '''
+                    set -eu
+                    docker run --rm \
+                        --volume "$PWD/medicore-backend:/app" \
+                        --workdir /app \
+                        node:20-alpine sh -c "npm ci && npm test"
+                '''
             }
         }
 
-        stage('Build Docker Image') {
+        stage('Frontend Quality') {
             steps {
                 sh '''
-                    docker context show
-                    docker build -t my-project-backend:latest .
+                    set -eu
+                    docker run --rm \
+                        --volume "$PWD/medicorefrontend:/app" \
+                        --workdir /app \
+                        node:20-alpine sh -c "npm ci && npm run lint && npm run build"
+                '''
+            }
+        }
+
+        stage('Build Docker Images') {
+            steps {
+                sh '''
+                    set -eu
+                    docker build --tag medicore-backend:${BUILD_NUMBER} ./medicore-backend
+                    docker build --tag medicore-frontend:${BUILD_NUMBER} ./medicorefrontend
+                '''
+            }
+        }
+
+        stage('Deploy') {
+            steps {
+                sh '''
+                    set -eu
+                    docker compose up -d --build
+
+                    for attempt in $(seq 1 30); do
+                        if docker run --rm --network medicore_default curlimages/curl:8.10.1 \
+                            --fail --silent http://frontend/api/health >/dev/null 2>&1; then
+                            echo 'Deployment health check passed.'
+                            exit 0
+                        fi
+                        sleep 2
+                    done
+
+                    echo 'Deployment health check failed'
+                    docker compose ps
+                    docker compose logs
+                    exit 1
                 '''
             }
         }
@@ -30,7 +78,11 @@ pipeline {
 
     post {
         success {
-            echo 'CI pipeline completed successfully!'
+            echo 'MediCore CI/CD pipeline completed successfully.'
+        }
+        failure {
+            echo 'MediCore CI/CD pipeline failed.'
+            sh 'docker compose down --remove-orphans >/dev/null 2>&1 || true'
         }
     }
 }
