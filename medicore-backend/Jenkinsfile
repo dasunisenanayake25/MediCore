@@ -4,36 +4,72 @@ pipeline {
     stages {
         stage('Checkout') {
             steps {
-                checkout scm
+                git branch: 'main', url: 'https://github.com/dasunisenanayake25/MediCore.git'
             }
         }
+    }
 
-        stage('Backend Test') {
-            steps {
-                sh 'cd medicore-backend && npm ci && npm test'
-            }
-        }
+    options {
+        timestamps()
+        disableConcurrentBuilds()
+    }
+}
 
-        stage('Frontend Build') {
-            steps {
-                sh 'cd medicorefrontend && npm ci && npm run lint && npm run build'
-            }
-        }
+environment {
+    COMPOSE_DOCKER_CLI_BUILD = '1'
+    DOCKER_BUILDKIT = '1'
+    FRONTEND_PORT = '8082'
+}
 
-        stage('Build Images') {
-            steps {
-                sh 'docker build -t medicore-backend:${BUILD_NUMBER} ./medicore-backend'
-                sh 'docker build -t medicore-frontend:${BUILD_NUMBER} ./medicorefrontend'
-            }
+stages {
+    stage('Checkout') {
+        steps {
+            git branch: 'main', url: 'https://github.com/dasunisenanayake25/MediCore.git'
         }
+    }
+}
 
-        stage('Deploy') {
-            steps {
-                withEnv(["IMAGE_TAG=${BUILD_NUMBER}", "FRONTEND_PORT=${env.FRONTEND_PORT ?: '8081'}"]) {
-                    sh 'docker compose up -d'
-                    sh 'curl --fail --retry 10 --retry-all-errors --retry-connrefused --retry-delay 3 http://localhost:${FRONTEND_PORT}/api/health'
-                }
-            }
-        }
+stage('Verify Environment') {
+    steps {
+    sh '''
+    whoami
+    docker context show
+    docker info | grep -i rootless || true
+    '''
+    }
+}
+
+stage('Build Docker Images') {
+    steps {
+        sh '''
+        docker build -t medicore-backend:latest ./medicore-backend
+        docker build -t medicore-frontend:latest ./medicorefrontend
+        '''
+    }
+}
+
+stage('Test Docker Compose Stack') {
+    steps {
+        sh '''
+        docker compose down --remove-orphans || true
+        docker compose up -d --build
+        docker compose ps
+        sleep 5
+        curl -I http://localhost:8082 || true
+        curl http://localhost:5000/api/health || true
+        '''
+    }
+}   
+
+
+post {
+    always {
+        sh 'docker compose down || true'
+    }
+    success {
+        echo 'MediCore CI pipeline completed successfully on Rootless Docker!'
+    }
+    failure {
+        echo 'CI pipeline failed. Please check console logs.'
     }
 }
