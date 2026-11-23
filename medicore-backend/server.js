@@ -447,7 +447,8 @@ app.post('/api/auth/login', async (req, res) => {
     let user;
     if (mongoose.connection.readyState === 1) {
       user = await User.findOne({ email });
-    } else {
+    }
+    if (!user) {
       user = demoUsers.find(
         u => String(u.email).toLowerCase() === email
       );
