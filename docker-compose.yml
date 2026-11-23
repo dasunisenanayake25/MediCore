@@ -1,7 +1,6 @@
 services:
   mongodb:
     image: mongo:7
-    container_name: medicore_mongodb
     ports:
       - "27017:27017"
     volumes:
@@ -10,7 +9,6 @@ services:
 
   backend:
     build: ./medicore-backend
-    container_name: medicore_backend
     ports:
       - "5000:5000"
     environment:
@@ -23,9 +21,8 @@ services:
 
   frontend:
     build: ./medicorefrontend
-    container_name: medicore_frontend
     ports:
-      - "8081:80"
+      - "${FRONTEND_PORT:-8081}:80"
     depends_on:
       - backend
     restart: unless-stopped

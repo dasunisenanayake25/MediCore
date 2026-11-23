@@ -9,6 +9,8 @@ pipeline {
     environment {
         COMPOSE_DOCKER_CLI_BUILD = '1'
         DOCKER_BUILDKIT = '1'
+        COMPOSE_PROJECT_NAME = 'medicore'
+        FRONTEND_PORT = '8082'
     }
 
     stages {
@@ -46,8 +48,7 @@ pipeline {
             steps {
                 sh '''
                     set -eu
-                    docker build --tag medicore-backend:${BUILD_NUMBER} ./medicore-backend
-                    docker build --tag medicore-frontend:${BUILD_NUMBER} ./medicorefrontend
+                    docker compose -p "$COMPOSE_PROJECT_NAME" build
                 '''
             }
         }
@@ -56,10 +57,10 @@ pipeline {
             steps {
                 sh '''
                     set -eu
-                    docker compose up -d --build
+                    docker compose -p "$COMPOSE_PROJECT_NAME" up -d --build
 
                     for attempt in $(seq 1 30); do
-                        if docker run --rm --network medicore_default curlimages/curl:8.10.1 \
+                        if docker run --rm --network "${COMPOSE_PROJECT_NAME}_default" curlimages/curl:8.10.1 \
                             --fail --silent http://frontend/api/health >/dev/null 2>&1; then
                             echo 'Deployment health check passed.'
                             exit 0
@@ -68,8 +69,8 @@ pipeline {
                     done
 
                     echo 'Deployment health check failed'
-                    docker compose ps
-                    docker compose logs
+                    docker compose -p "$COMPOSE_PROJECT_NAME" ps
+                    docker compose -p "$COMPOSE_PROJECT_NAME" logs
                     exit 1
                 '''
             }
@@ -82,7 +83,6 @@ pipeline {
         }
         failure {
             echo 'MediCore CI/CD pipeline failed.'
-            sh 'docker compose down --remove-orphans >/dev/null 2>&1 || true'
         }
     }
 }
