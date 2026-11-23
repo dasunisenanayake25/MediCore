@@ -5,8 +5,8 @@ FROM node:20-alpine
 WORKDIR /app
 
 # Copy package.json files and install dependencies
-COPY package*.json ./
-RUN npm install
+COPY package.json package-lock.json ./
+RUN npm ci
 
 # Copy all backend code
 COPY . .
